@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="app_agenda.Data/app_agenda.Data.csproj" Id="0e4b494e-6c72-4257-8a74-8641f23b39f9" />
+  <Project Path="app_agenda.UI.Test/app_agenda.UI.Test.csproj" Id="6805834a-1ca3-4b70-b493-4bbf060e497c" />
+  <Project Path="app_agenda/app_agenda.UI.csproj" />
+</Solution>
