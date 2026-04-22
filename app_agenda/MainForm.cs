@@ -85,60 +85,68 @@ namespace app_agenda
 
         private void SetupSidebar()
         {
-            var logoPanel = new Panel { Size = new Size(250, 80), Dock = DockStyle.Top };
+            // Panel de Logo (Fijo arriba)
+            var logoPanel = new Panel { Size = new Size(250, 100), Dock = DockStyle.Top };
             var iconLogo = new IconPictureBox
             {
-                Size = new Size(40, 40),
-                Location = new Point(15, 20),
+                Size = new Size(45, 45),
+                Location = new Point(20, 25),
                 IconChar = IconChar.AddressBook,
                 IconColor = Color.White,
-                IconSize = 32
+                BackColor = Color.Transparent
             };
+            // Dentro de SetupSidebar, busca lblLogo y cambia su Location:
             var lblLogo = new Label
             {
                 Text = "Mi Agenda",
-                Location = new Point(65, 22),
-                Size = new Size(170, 25),
+                // Cambiamos 35 por 32 (o 30 dependiendo de la fuente) para centrarlo con el icono
+                Location = new Point(75, 32),
+                AutoSize = true,
                 ForeColor = Color.White,
                 Font = new Font("Segoe UI", 16, FontStyle.Bold)
             };
             logoPanel.Controls.AddRange(new Control[] { iconLogo, lblLogo });
 
-            flpCategories = new FlowLayoutPanel
-            {
-                Size = new Size(250, 350),
-                FlowDirection = FlowDirection.TopDown,
-                AutoScroll = true,
-                WrapContents = false
-            };
-
+            // Botones Superiores Fijos (Todos, Favoritos)
+            var pnlFixedButtons = new Panel { Size = new Size(250, 100), Dock = DockStyle.Top };
             btnTodos = CreateSidebarButton("Todos", IconChar.Inbox, () => { _currentCategoryId = null; LoadContacts(null); });
             btnFavoritos = CreateSidebarButton("Favoritos", IconChar.Heart, () => { LoadFavorites(); });
-            btnTodo = CreateSidebarButton("To Do", IconChar.ListUl, () => { LoadTodos(); });
+            btnTodos.Location = new Point(0, 0);
+            btnFavoritos.Location = new Point(0, 50);
+            pnlFixedButtons.Controls.AddRange(new Control[] { btnTodos, btnFavoritos });
 
-            var btnAddCategory = new IconButton
+            // Panel dinámico para Categorías (En medio)
+            flpCategories = new FlowLayoutPanel
             {
-                Text = "+ Nueva Categoría",
-                Location = new Point(10, flpCategories!.Bottom + 10),
-                Size = new Size(230, 40),
-                IconChar = IconChar.Plus,
-                IconColor = Color.White,
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                TextImageRelation = TextImageRelation.ImageBeforeText,
-                TextAlign = ContentAlignment.MiddleLeft,
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.TopDown,
+                AutoScroll = true,
+                WrapContents = false,
                 BackColor = Color.Transparent,
-                Cursor = Cursors.Hand
+                // Añadimos un pequeño padding a la izquierda para centrar los botones de 220 en el panel de 250
+                Padding = new Padding(15, 10, 0, 10)
             };
-            btnAddCategory.Click += BtnAddCategory_Click;
 
-            flpCategories.Controls.Add(btnTodos!);
-            flpCategories.Controls.Add(btnFavoritos!);
-            foreach (Control ctrl in new Control[] { btnAddCategory })
-                flpCategories.Controls.Add(ctrl);
-            flpCategories.Controls.Add(btnTodo!);
+            // --- AÑADE ESTA LÍNEA AQUÍ PARA MATAR EL SCROLL HORIZONTAL ---
+            flpCategories.HorizontalScroll.Maximum = 0;
+            flpCategories.HorizontalScroll.Visible = false;
+            flpCategories.AutoScroll = false; // Truco: lo apagamos y prendemos
+            flpCategories.AutoScroll = true;
 
-            pnlSidebar.Controls.Add(flpCategories);
+            // Botones Inferiores Fijos (Nueva Cat, To Do)
+            var pnlBottomActions = new Panel { Size = new Size(230, 120), Dock = DockStyle.Bottom };
+            var btnAddCategory = CreateSidebarButton("Nueva Categoría", IconChar.PlusCircle, () => BtnAddCategory_Click(null!, null!));
+            btnTodo = CreateSidebarButton("To Do List", IconChar.ListCheck, () => LoadTodos());
+
+            btnAddCategory.Location = new Point(0, 10);
+            btnTodo.Location = new Point(0, 60);
+            pnlBottomActions.Controls.AddRange(new Control[] { btnAddCategory, btnTodo });
+
+            // Agregar todo al Sidebar en orden
+            pnlSidebar.Controls.Clear();
+            pnlSidebar.Controls.Add(flpCategories); // Fill ocupa el espacio restante
+            pnlSidebar.Controls.Add(pnlBottomActions);
+            pnlSidebar.Controls.Add(pnlFixedButtons);
             pnlSidebar.Controls.Add(logoPanel);
 
             SetActiveButton(btnTodos!);
@@ -149,18 +157,25 @@ namespace app_agenda
             var btn = new IconButton
             {
                 Text = text,
-                Size = new Size(230, 44),
+                // CAMBIA ESTO: de 250 a 225 (o 220 para estar seguros)
+                Size = new Size(225, 50),
                 IconChar = icon,
-                IconColor = Color.White,
+                IconSize = 28,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 TextAlign = ContentAlignment.MiddleLeft,
+                ImageAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(20, 0, 0, 0), // Espacio a la izquierda
                 BackColor = Color.Transparent,
                 Cursor = Cursors.Hand,
-                FlatAppearance = { BorderSize = 0 }
+                Font = new Font("Segoe UI", 11, FontStyle.Regular)
             };
-            btn.MouseClick += (s, e) => { onClick(); SetActiveButton(btn); };
+            btn.FlatAppearance.BorderSize = 0;
+            btn.FlatAppearance.MouseDownBackColor = ColorTranslator.FromHtml("#1E857E");
+            btn.FlatAppearance.MouseOverBackColor = ColorTranslator.FromHtml("#2bb6b8");
+
+            btn.Click += (s, e) => { onClick(); SetActiveButton(btn); };
             return btn;
         }
 
@@ -204,6 +219,12 @@ namespace app_agenda
                 BackColor = Color.Transparent,
                 Cursor = Cursors.Hand
             };
+
+            
+            btnLogout.FlatAppearance.BorderSize = 0;
+            btnLogout.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+           
+
             btnLogout.Click += BtnLogout_Click;
 
             var separator = new Panel
@@ -286,7 +307,8 @@ namespace app_agenda
             foreach (var cat in categories)
             {
                 var icon = ParseIcon(cat.IconCode);
-                var btn = CreateSidebarButton(cat.Name, icon, () => {
+                var btn = CreateSidebarButton(cat.Name, icon, () =>
+                {
                     _currentCategoryId = cat.Id;
                     LoadContacts(cat.Id);
                 });
@@ -370,7 +392,8 @@ namespace app_agenda
                 Cursor = Cursors.Hand,
                 FlatAppearance = { BorderSize = 0 }
             };
-            btnAddTodo.Click += (s, e) => {
+            btnAddTodo.Click += (s, e) =>
+            {
                 if (!string.IsNullOrWhiteSpace(txtNewTodo.Text))
                 {
                     _todoService.AddTodo(_currentUserId, txtNewTodo.Text.Trim());
@@ -400,7 +423,8 @@ namespace app_agenda
             return new ContactCard(contact,
                 id => { _contactService.ToggleFavorite(id); RefreshCurrentView(); },
                 id => { var c = _contactService.GetById(id); if (c != null) OpenContactForm(c); },
-                id => {
+                id =>
+                {
                     if (MessageBox.Show($"¿Eliminar contacto '{contact.Name}'?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
                         _contactService.DeleteContact(id);
@@ -413,7 +437,8 @@ namespace app_agenda
         {
             return new TodoItemControl(todo,
                 id => { _todoService.ToggleTodo(id); LoadTodos(); },
-                id => {
+                id =>
+                {
                     if (MessageBox.Show("¿Eliminar esta tarea?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
                         _todoService.DeleteTodo(id);
@@ -483,6 +508,11 @@ namespace app_agenda
         private void BtnLogout_Click(object sender, EventArgs e)
         {
             Application.Exit();
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

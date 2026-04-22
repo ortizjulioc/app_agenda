@@ -11,11 +11,17 @@ namespace app_agenda
 
         private void InitializeComponent()
         {
+            SuspendLayout();
+            // 
+            // MainForm
+            // 
             ClientSize = new Size(1000, 650);
             MinimumSize = new Size(800, 500);
             Name = "MainForm";
-            Text = "Agenda Telefónica";
             StartPosition = FormStartPosition.CenterScreen;
+            Text = "Agenda Telefónica";
+            Load += MainForm_Load;
+            ResumeLayout(false);
         }
 
         #endregion
