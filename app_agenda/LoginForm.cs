@@ -22,6 +22,10 @@ namespace app_agenda.UI
             this.MouseDown += LoginForm_MouseDown;
             this.MouseMove += LoginForm_MouseMove;
             this.MouseUp += LoginForm_MouseUp;
+
+            this.panelWhite.MouseDown += LoginForm_MouseDown;
+            this.panelWhite.MouseMove += LoginForm_MouseMove;
+            this.panelWhite.MouseUp += LoginForm_MouseUp;
         }
 
         // 3. Evento del botón cerrar (mejorado)
@@ -36,7 +40,6 @@ namespace app_agenda.UI
             string user = txtUser.Text.Trim();
             string pass = txtPass.Text.Trim();
 
-            // Validaciones básicas
             if (string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(pass))
             {
                 MessageBox.Show("Por favor, complete todos los campos.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -45,19 +48,16 @@ namespace app_agenda.UI
 
             try
             {
-                // LLAMADA AL SERVICIO (Consulta real a la BD)
                 var usuarioEncontrado = _authService.Login(user, pass);
 
                 if (usuarioEncontrado != null)
                 {
-                    // Login exitoso
                     this.Hide();
-                    MainForm main = new MainForm(usuarioEncontrado.Id); // Pasamos el ID real
+                    MainForm main = new MainForm(usuarioEncontrado.Id);
                     main.Show();
                 }
                 else
                 {
-                    // Datos incorrectos
                     MessageBox.Show("Usuario o contraseña incorrectos.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     txtPass.Clear();
                     txtPass.Focus();
@@ -67,6 +67,14 @@ namespace app_agenda.UI
             {
                 MessageBox.Show("Ocurrió un error al conectar: " + ex.Message);
             }
+        }
+
+        private void linkRegister_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            this.Hide();
+            using var registerForm = new RegisterForm();
+            registerForm.ShowDialog();
+            this.Show();
         }
 
         #region Arrastre del Formulario

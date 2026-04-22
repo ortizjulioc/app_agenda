@@ -20,9 +20,10 @@ namespace app_agenda.UI
             pictureUser = new FontAwesome.Sharp.IconPictureBox();
             txtUser = new TextBox();
             panelLine1 = new Panel();
-            txtPass = new TextBox();
+txtPass = new TextBox();
             panelLine2 = new Panel();
             btnLogin = new FontAwesome.Sharp.IconButton();
+            linkRegister = new LinkLabel();
             ((System.ComponentModel.ISupportInitialize)btnClose).BeginInit();
             panelWhite.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureUser).BeginInit();
@@ -53,6 +54,7 @@ namespace app_agenda.UI
             panelWhite.Controls.Add(txtPass);
             panelWhite.Controls.Add(panelLine2);
             panelWhite.Controls.Add(btnLogin);
+            panelWhite.Controls.Add(linkRegister);
             panelWhite.Location = new Point(40, 40);
             panelWhite.Name = "panelWhite";
             panelWhite.Padding = new Padding(30, 60, 30, 30);
@@ -133,6 +135,20 @@ namespace app_agenda.UI
             btnLogin.TextImageRelation = TextImageRelation.ImageBeforeText;
             btnLogin.UseVisualStyleBackColor = false;
             btnLogin.Click += btnLogin_Click;
+
+            // 
+            // linkRegister
+            // 
+            linkRegister.ActiveLinkColor = Color.FromArgb(20, 120, 120);
+            linkRegister.Font = new Font("Segoe UI", 10F);
+            linkRegister.LinkColor = Color.FromArgb(36, 158, 160);
+            linkRegister.Location = new Point(27, 385);
+            linkRegister.Name = "linkRegister";
+            linkRegister.Size = new Size(260, 20);
+            linkRegister.TabIndex = 6;
+            linkRegister.Text = "Crear cuenta nueva";
+            linkRegister.TextAlign = ContentAlignment.MiddleCenter;
+            linkRegister.LinkClicked += linkRegister_LinkClicked;
        
             // 
             // LoginForm
@@ -160,5 +176,6 @@ namespace app_agenda.UI
         private System.Windows.Forms.TextBox txtPass;
         private System.Windows.Forms.Panel panelLine2;
         private FontAwesome.Sharp.IconButton btnLogin;
+        private System.Windows.Forms.LinkLabel linkRegister;
     }
 }
