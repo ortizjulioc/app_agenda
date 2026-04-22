@@ -2,23 +2,23 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using FontAwesome.Sharp;
-using app_agenda.UI.Services; // <--- Importante: Donde está tu servicio
+using app_agenda.UI.Services;
 
 namespace app_agenda.UI
 {
     public partial class LoginForm : Form
     {
-        // 1. Campos para el arrastre y el servicio
         private bool dragging = false;
         private Point dragOffset;
         private readonly AuthService _authService;
+        private readonly CategoryService _categoryService;
 
         public LoginForm()
         {
             InitializeComponent();
-            _authService = new AuthService(); // 2. Inicializamos el servicio
+            _authService = new AuthService();
+            _categoryService = new CategoryService();
 
-            // Eventos para mover el formulario
             this.MouseDown += LoginForm_MouseDown;
             this.MouseMove += LoginForm_MouseMove;
             this.MouseUp += LoginForm_MouseUp;
@@ -28,13 +28,11 @@ namespace app_agenda.UI
             this.panelWhite.MouseUp += LoginForm_MouseUp;
         }
 
-        // 3. Evento del botón cerrar (mejorado)
         private void btnClose_MouseClick(object sender, MouseEventArgs e)
         {
-            Application.Exit(); // Cierra toda la aplicación
+            Application.Exit();
         }
 
-        // 4. Lógica Real de Login (Movida a btnLogin_Click que es el estándar)
         private void btnLogin_Click(object sender, EventArgs e)
         {
             string user = txtUser.Text.Trim();
@@ -52,8 +50,10 @@ namespace app_agenda.UI
 
                 if (usuarioEncontrado != null)
                 {
+                    _categoryService.EnsureDefaultCategories(usuarioEncontrado.Id);
+
                     this.Hide();
-                    MainForm main = new MainForm(usuarioEncontrado.Id);
+                    MainForm main = new MainForm(usuarioEncontrado.Id, usuarioEncontrado.Username);
                     main.Show();
                 }
                 else
@@ -103,7 +103,5 @@ namespace app_agenda.UI
             dragging = false;
         }
         #endregion
-
-        // Puedes borrar el btnLogin_MouseClick sobrante si no lo usas en el designer
     }
 }
