@@ -86,7 +86,6 @@ namespace app_agenda
         private void SetupSidebar()
         {
             pnlSidebar.Controls.Clear();
-            pnlSidebar.BackColor = ColorTranslator.FromHtml("#249EA0");
 
             // 1. Logo Fijo arriba
             var logoPanel = new Panel { Size = new Size(250, 100), Dock = DockStyle.Top };
@@ -107,44 +106,28 @@ namespace app_agenda
                 Font = new Font("Segoe UI", 16, FontStyle.Bold)
             };
             logoPanel.Controls.AddRange(new Control[] { iconLogo, lblLogo });
-            pnlSidebar.Controls.Add(logoPanel);
 
-            // 2. El único contenedor para todos los botones (Ocupa todo el espacio)
+            // 2. El contenedor único
             flpCategories = new FlowLayoutPanel
             {
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.Fill, // Llenará el resto del espacio
                 FlowDirection = FlowDirection.TopDown,
                 AutoScroll = true,
                 WrapContents = false,
-                BackColor = Color.Transparent,
-                Padding = new Padding(0, 0, 0, 0), // Sin padding para que el botón toque los bordes
-                Margin = new Padding(0)
+                BackColor = Color.Transparent
             };
 
-            // Matamos el scroll horizontal por diseño
             flpCategories.HorizontalScroll.Maximum = 0;
             flpCategories.HorizontalScroll.Visible = false;
 
-            // 3. Botones Superiores
-            btnTodos = CreateSidebarButton("Todos", IconChar.Inbox, () => { _currentCategoryId = null; LoadContacts(null); });
-            btnFavoritos = CreateSidebarButton("Favoritos", IconChar.Heart, () => { LoadFavorites(); });
+            // --- IMPORTANTE: EL ORDEN DE ADD ---
+            pnlSidebar.Controls.Add(flpCategories); // Se agrega para llenar el espacio restante
+            pnlSidebar.Controls.Add(logoPanel);     // Se agrega para "empujar" desde arriba
 
-            flpCategories.Controls.Add(btnTodos);
-            flpCategories.Controls.Add(btnFavoritos);
-
-            // 4. Una línea separadora sutil
-            var separator = new Panel
-            {
-                Size = new Size(210, 1),
-                BackColor = Color.FromArgb(50, Color.White),
-                Margin = new Padding(20, 10, 20, 10)
-            };
-            flpCategories.Controls.Add(separator);
-
-            pnlSidebar.Controls.Add(flpCategories);
-
-            // Nota: El LoadCategories() al final del constructor se encargará 
-            // de meter las categorías y los botones de abajo en orden.
+            // En WinForms, el último en agregarse con Dock.Top es el que queda arriba.
+            // Para asegurar que flpCategories no quede debajo del logo, lo traemos al frente:
+            flpCategories.BringToFront();
+            logoPanel.SendToBack(); // O el logo al fondo del orden de dock
         }
 
         private IconButton CreateSidebarButton(string text, IconChar icon, Action onClick)
@@ -313,15 +296,40 @@ namespace app_agenda
         {
             var lbl = pnlHeader.Controls.OfType<Label>().FirstOrDefault(l => l.Name == "lblWelcome");
             if (lbl != null)
-                lbl.Text = $"Hola, {_userName}";
+            {
+                // Esto pone la primera letra en mayúscula (Julio)
+                string stylizedName = char.ToUpper(_userName[0]) + _userName.Substring(1).ToLower();
+                lbl.Text = $"Hola, {stylizedName}";
+            }
         }
 
         private void LoadCategories()
         {
-            // Limpiamos solo para reconstruir la parte dinámica
-            // (Si prefieres, llama a SetupSidebar() aquí para resetear todo el flujo)
-            SetupSidebar();
+            SetupSidebar(); // Reseteamos la estructura
 
+            // 1. Botones de Control General
+            btnTodos = CreateSidebarButton("Todos", IconChar.Inbox, () => {
+                _currentCategoryId = null;
+                LoadContacts(null);
+            });
+
+            btnFavoritos = CreateSidebarButton("Favoritos", IconChar.Heart, () => {
+                LoadFavorites();
+            });
+
+            flpCategories!.Controls.Add(btnTodos);
+            flpCategories.Controls.Add(btnFavoritos);
+
+            // Separador
+            var separator = new Panel
+            {
+                Size = new Size(210, 1),
+                BackColor = Color.FromArgb(50, Color.White),
+                Margin = new Padding(20, 10, 20, 10)
+            };
+            flpCategories.Controls.Add(separator);
+
+            // 2. Categorías Dinámicas
             var categories = _categoryService.GetCategoriesByUser(_currentUserId);
             foreach (var cat in categories)
             {
@@ -330,23 +338,26 @@ namespace app_agenda
                     _currentCategoryId = cat.Id;
                     LoadContacts(cat.Id);
                 });
-                flpCategories!.Controls.Add(btn);
+                flpCategories.Controls.Add(btn);
             }
 
-            // 5. Botones de Acción (Van JUSTO después de la última categoría)
+            // 3. Botones de Acción al Final
             var separator2 = new Panel
             {
                 Size = new Size(210, 1),
                 BackColor = Color.FromArgb(50, Color.White),
                 Margin = new Padding(20, 10, 20, 10)
             };
-            flpCategories!.Controls.Add(separator2);
+            flpCategories.Controls.Add(separator2);
 
             var btnAddCategory = CreateSidebarButton("Nueva Categoría", IconChar.PlusCircle, () => BtnAddCategory_Click(null!, null!));
             btnTodo = CreateSidebarButton("To Do List", IconChar.ListCheck, () => LoadTodos());
 
             flpCategories.Controls.Add(btnAddCategory);
             flpCategories.Controls.Add(btnTodo);
+
+            // Activar botón visualmente
+            if (_currentCategoryId == null) SetActiveButton(btnTodos);
         }
 
         private IconChar ParseIcon(string code)

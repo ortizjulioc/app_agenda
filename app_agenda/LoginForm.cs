@@ -19,6 +19,10 @@ namespace app_agenda.UI
             _authService = new AuthService();
             _categoryService = new CategoryService();
 
+            // --- ESTA ES LA LÍNEA MÁGICA ---
+            // Hace que al presionar Enter en cualquier lugar, se ejecute btnLogin_Click
+            this.AcceptButton = this.btnLogin;
+
             this.MouseDown += LoginForm_MouseDown;
             this.MouseMove += LoginForm_MouseMove;
             this.MouseUp += LoginForm_MouseUp;
@@ -103,5 +107,26 @@ namespace app_agenda.UI
             dragging = false;
         }
         #endregion
+
+        private void LoginForm_Load(object sender, EventArgs e)
+        {
+            txtUser.Focus();
+        }
+
+        private void txtPass_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtPass_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                // Esto evita que Windows haga el sonido de error
+                e.SuppressKeyPress = true;
+
+                // El AcceptButton se encargará de hacer el clic por nosotros
+            }
+        }
     }
 }

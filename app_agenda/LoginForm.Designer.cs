@@ -20,7 +20,7 @@ namespace app_agenda.UI
             pictureUser = new FontAwesome.Sharp.IconPictureBox();
             txtUser = new TextBox();
             panelLine1 = new Panel();
-txtPass = new TextBox();
+            txtPass = new TextBox();
             panelLine2 = new Panel();
             btnLogin = new FontAwesome.Sharp.IconButton();
             linkRegister = new LinkLabel();
@@ -107,6 +107,8 @@ txtPass = new TextBox();
             txtPass.Size = new Size(260, 20);
             txtPass.TabIndex = 3;
             txtPass.UseSystemPasswordChar = true;
+            txtPass.TextChanged += txtPass_TextChanged;
+            txtPass.KeyDown += txtPass_KeyDown;
             // 
             // panelLine2
             // 
@@ -135,7 +137,6 @@ txtPass = new TextBox();
             btnLogin.TextImageRelation = TextImageRelation.ImageBeforeText;
             btnLogin.UseVisualStyleBackColor = false;
             btnLogin.Click += btnLogin_Click;
-
             // 
             // linkRegister
             // 
@@ -146,10 +147,10 @@ txtPass = new TextBox();
             linkRegister.Name = "linkRegister";
             linkRegister.Size = new Size(260, 20);
             linkRegister.TabIndex = 6;
+            linkRegister.TabStop = true;
             linkRegister.Text = "Crear cuenta nueva";
             linkRegister.TextAlign = ContentAlignment.MiddleCenter;
             linkRegister.LinkClicked += linkRegister_LinkClicked;
-       
             // 
             // LoginForm
             // 
@@ -161,6 +162,7 @@ txtPass = new TextBox();
             Name = "LoginForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Login";
+            Load += LoginForm_Load;
             ((System.ComponentModel.ISupportInitialize)btnClose).EndInit();
             panelWhite.ResumeLayout(false);
             panelWhite.PerformLayout();
