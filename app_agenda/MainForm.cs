@@ -87,7 +87,7 @@ namespace app_agenda
         {
             pnlSidebar.Controls.Clear();
 
-            // 1. Logo Fijo arriba
+            // Logo Fijo arriba
             var logoPanel = new Panel { Size = new Size(250, 100), Dock = DockStyle.Top };
             var iconLogo = new IconPictureBox
             {
@@ -107,10 +107,10 @@ namespace app_agenda
             };
             logoPanel.Controls.AddRange(new Control[] { iconLogo, lblLogo });
 
-            // 2. El contenedor único
+            // El contenedor único
             flpCategories = new FlowLayoutPanel
             {
-                Dock = DockStyle.Fill, // Llenará el resto del espacio
+                Dock = DockStyle.Fill, 
                 FlowDirection = FlowDirection.TopDown,
                 AutoScroll = true,
                 WrapContents = false,
@@ -120,14 +120,12 @@ namespace app_agenda
             flpCategories.HorizontalScroll.Maximum = 0;
             flpCategories.HorizontalScroll.Visible = false;
 
-            // --- IMPORTANTE: EL ORDEN DE ADD ---
-            pnlSidebar.Controls.Add(flpCategories); // Se agrega para llenar el espacio restante
-            pnlSidebar.Controls.Add(logoPanel);     // Se agrega para "empujar" desde arriba
 
-            // En WinForms, el último en agregarse con Dock.Top es el que queda arriba.
-            // Para asegurar que flpCategories no quede debajo del logo, lo traemos al frente:
+            pnlSidebar.Controls.Add(flpCategories); 
+            pnlSidebar.Controls.Add(logoPanel);     
+
             flpCategories.BringToFront();
-            logoPanel.SendToBack(); // O el logo al fondo del orden de dock
+            logoPanel.SendToBack(); 
         }
 
         private IconButton CreateSidebarButton(string text, IconChar icon, Action onClick)
@@ -144,7 +142,7 @@ namespace app_agenda
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 TextAlign = ContentAlignment.MiddleLeft,
                 ImageAlign = ContentAlignment.MiddleLeft,
-                // ESTA LÍNEA ES LA CLAVE: 25px de espacio constante para el icono
+  
                 Padding = new Padding(25, 0, 0, 0),
                 BackColor = Color.Transparent,
                 Cursor = Cursors.Hand,
@@ -160,12 +158,12 @@ namespace app_agenda
 
         private void SetActiveButton(IconButton btn)
         {
-            // 1. Limpiamos el botón que estaba activo antes
+
             if (_activeButton != null)
             {
                 _activeButton.BackColor = Color.Transparent;
 
-                // Buscamos si el botón anterior tiene la "rayita" y la eliminamos
+
                 var oldIndicator = _activeButton.Controls.OfType<Panel>().FirstOrDefault(p => p.Name == "activeIndicator");
                 if (oldIndicator != null)
                 {
@@ -173,14 +171,13 @@ namespace app_agenda
                 }
             }
 
-            // 2. Definimos el nuevo botón activo
             _activeButton = btn;
             _activeButton.BackColor = ColorTranslator.FromHtml("#1E857E");
 
-            // 3. Creamos la rayita blanca NUEVA
+
             var indicator = new Panel
             {
-                Name = "activeIndicator", // <--- IMPORTANTE: Le ponemos nombre para encontrarla luego
+                Name = "activeIndicator", 
                 Size = new Size(5, _activeButton.Height),
                 Location = new Point(0, 0),
                 BackColor = Color.White
@@ -259,12 +256,12 @@ namespace app_agenda
 
             var btnAddContact = new IconButton
             {
-                Text = "Agregar", // O "Agregar Contacto"
+                Text = "Agregar", 
                 Location = new Point(300, 12),
-                Size = new Size(130, 40), // Le damos un poco más de altura (40)
+                Size = new Size(130, 40), 
                 IconChar = IconChar.UserPlus,
                 IconColor = Color.White,
-                IconSize = 24,           // <--- Reducimos el icono a 24 para que respire
+                IconSize = 24,           
                 BackColor = ColorTranslator.FromHtml("#249EA0"),
                 FlatStyle = FlatStyle.Flat,
                 TextImageRelation = TextImageRelation.ImageBeforeText,
@@ -272,7 +269,7 @@ namespace app_agenda
                 ImageAlign = ContentAlignment.MiddleCenter,
                 Cursor = Cursors.Hand
             };
-            // Quita el borde negro que se ve en tu imagen
+
             btnAddContact.FlatAppearance.BorderSize = 0;
             btnAddContact.Click += BtnAddContact_Click;
 
@@ -297,7 +294,7 @@ namespace app_agenda
             var lbl = pnlHeader.Controls.OfType<Label>().FirstOrDefault(l => l.Name == "lblWelcome");
             if (lbl != null)
             {
-                // Esto pone la primera letra en mayúscula (Julio)
+
                 string stylizedName = char.ToUpper(_userName[0]) + _userName.Substring(1).ToLower();
                 lbl.Text = $"Hola, {stylizedName}";
             }
@@ -305,9 +302,9 @@ namespace app_agenda
 
         private void LoadCategories()
         {
-            SetupSidebar(); // Reseteamos la estructura
+            SetupSidebar(); 
 
-            // 1. Botones de Control General
+
             btnTodos = CreateSidebarButton("Todos", IconChar.Inbox, () => {
                 _currentCategoryId = null;
                 LoadContacts(null);
@@ -320,7 +317,7 @@ namespace app_agenda
             flpCategories!.Controls.Add(btnTodos);
             flpCategories.Controls.Add(btnFavoritos);
 
-            // Separador
+
             var separator = new Panel
             {
                 Size = new Size(210, 1),
@@ -329,7 +326,7 @@ namespace app_agenda
             };
             flpCategories.Controls.Add(separator);
 
-            // 2. Categorías Dinámicas
+
             var categories = _categoryService.GetCategoriesByUser(_currentUserId);
             foreach (var cat in categories)
             {
@@ -341,7 +338,7 @@ namespace app_agenda
                 flpCategories.Controls.Add(btn);
             }
 
-            // 3. Botones de Acción al Final
+
             var separator2 = new Panel
             {
                 Size = new Size(210, 1),
@@ -356,7 +353,7 @@ namespace app_agenda
             flpCategories.Controls.Add(btnAddCategory);
             flpCategories.Controls.Add(btnTodo);
 
-            // Activar botón visualmente
+
             if (_currentCategoryId == null) SetActiveButton(btnTodos);
         }
 
@@ -428,17 +425,17 @@ namespace app_agenda
             {
                 Text = "Agregar",
                 Location = new Point(530, 8),
-                Size = new Size(110, 36), // Un poco más de ancho para que el texto quepa bien
+                Size = new Size(110, 36), 
                 IconChar = IconChar.Plus,
                 IconColor = Color.White,
-                IconSize = 20,            // <--- Tamaño corregido para que no se estire
+                IconSize = 20,            
                 BackColor = ColorTranslator.FromHtml("#249EA0"),
                 FlatStyle = FlatStyle.Flat,
-                TextImageRelation = TextImageRelation.ImageBeforeText, // Icono antes que texto
+                TextImageRelation = TextImageRelation.ImageBeforeText, 
                 Cursor = Cursors.Hand,
                 Font = new Font("Segoe UI", 10, FontStyle.Bold)
             };
-            btnAddTodo.FlatAppearance.BorderSize = 0; // Quita el borde feo
+            btnAddTodo.FlatAppearance.BorderSize = 0; 
             btnAddTodo.Click += (s, e) =>
             {
                 if (!string.IsNullOrWhiteSpace(txtNewTodo.Text))

@@ -14,7 +14,7 @@ namespace app_agenda.Data.Models
         public string Name { get; set; }
 
         [Required, StringLength(50)]
-        public string IconCode { get; set; } // Ejemplo: "User", "Briefcase"
+        public string IconCode { get; set; }
 
         public int UserId { get; set; }
         public virtual User User { get; set; }

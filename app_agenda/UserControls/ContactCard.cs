@@ -70,14 +70,14 @@ namespace app_agenda.UI.UserControls
                 AutoEllipsis = true
             };
 
-            // 1. Configuración del botón Editar (Lápiz)
+            // Configuración del botón Editar (Lápiz)
             _btnEdit = new IconButton
             {
                 Size = new Size(32, 32),
                 Location = new Point(510, 11),
                 IconChar = IconChar.Pencil,
                 IconColor = Color.White,
-                IconSize = 20,           // <--- Lo hicimos más pequeño (estaba por defecto en 32)
+                IconSize = 20,           
                 FlatStyle = FlatStyle.Flat,
                 FlatAppearance = { BorderSize = 0 },
                 Cursor = Cursors.Hand,
@@ -85,14 +85,14 @@ namespace app_agenda.UI.UserControls
             };
             _btnEdit.MouseClick += (s, e) => _onEdit(_contact.Id);
 
-            // 2. Configuración del botón Eliminar (Zafacón)
+            // Configuración del botón Eliminar (Zafacón)
             _btnDelete = new IconButton
             {
                 Size = new Size(32, 32),
                 Location = new Point(548, 11),
                 IconChar = IconChar.Trash,
-                IconColor = Color.FromArgb(255, 82, 82), // <--- Rojo moderno (Coral)
-                IconSize = 20,           // <--- Lo hicimos más pequeño
+                IconColor = Color.FromArgb(255, 82, 82),  
+                IconSize = 20,          
                 FlatStyle = FlatStyle.Flat,
                 FlatAppearance = { BorderSize = 0 },
                 Cursor = Cursors.Hand,
