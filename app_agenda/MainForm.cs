@@ -199,7 +199,7 @@ namespace app_agenda
 
             var btnLogout = new IconButton
             {
-                Text = "Cerrar Sesión",
+                Text = "",
                 Location = new Point(600, 10),
                 Size = new Size(130, 40),
                 IconChar = IconChar.RightFromBracket,
@@ -210,10 +210,17 @@ namespace app_agenda
                 Cursor = Cursors.Hand
             };
 
-            
+
             btnLogout.FlatAppearance.BorderSize = 0;
-            btnLogout.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-           
+            btnLogout.FlatAppearance.MouseDownBackColor = Color.FromArgb(30, 36, 158, 160);
+            btnLogout.FlatAppearance.MouseOverBackColor = Color.FromArgb(20, 36, 158, 160);  
+
+            ToolTip tt = new ToolTip();
+            tt.SetToolTip(btnLogout, "Cerrar");
+
+            tt.IsBalloon = false;
+            tt.ToolTipTitle = "";
+
 
             btnLogout.Click += BtnLogout_Click;
 
