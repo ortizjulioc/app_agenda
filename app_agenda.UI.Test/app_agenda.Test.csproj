@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net10.0-windows7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -16,6 +16,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\app_agenda.Data\app_agenda.Data.csproj" />
+	  <ProjectReference Include="..\app_agenda\app_agenda.UI.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

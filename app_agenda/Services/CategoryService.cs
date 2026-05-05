@@ -2,88 +2,108 @@ using app_agenda.Data;
 using app_agenda.Data.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
-namespace app_agenda.UI.Services
+namespace app_agenda.UI.Services;
+
+public class CategoryService:Aplicada1.Core.IService<Category, int>
 {
-    public class CategoryService
+    private static readonly Dictionary<string, string> DefaultCategories = new()
     {
-        private static readonly Dictionary<string, string> DefaultCategories = new()
-        {
-            { "Personal", "User" },
-            { "Trabajo", "Briefcase" },
-            { "Familia", "Users" },
-            { "General", "Folder" }
-        };
+        { "Personal", "User" },
+        { "Trabajo", "Briefcase" },
+        { "Familia", "Users" },
+        { "General", "Folder" }
+    };
 
-        public List<Category> GetCategoriesByUser(int userId)
-        {
-            using var db = new AgendaContext();
-            return db.Categories
-                .Where(c => c.UserId == userId)
-                .OrderBy(c => c.Name)
+    public List<Category> GetCategoriesByUser(int userId)
+    {
+        using var db = new AgendaContext();
+        return db.Categories
+            .Where(c => c.UserId == userId)
+            .OrderBy(c => c.Name)
 .ToList();
-        }
+    }
 
-        public void EnsureDefaultCategories(int userId)
+    public void EnsureDefaultCategories(int userId)
+    {
+        using var db = new AgendaContext();
+        var existingNames = db.Categories
+            .Where(c => c.UserId == userId)
+            .Select(c => c.Name)
+            .ToList();
+
+        foreach (var kvp in DefaultCategories)
         {
-            using var db = new AgendaContext();
-            var existingNames = db.Categories
-                .Where(c => c.UserId == userId)
-                .Select(c => c.Name)
-                .ToList();
-
-            foreach (var kvp in DefaultCategories)
+            if (!existingNames.Contains(kvp.Key))
             {
-                if (!existingNames.Contains(kvp.Key))
+                db.Categories.Add(new Category
                 {
-                    db.Categories.Add(new Category
-                    {
-                        Name = kvp.Key,
-                        IconCode = kvp.Value,
-                        UserId = userId,
-                        CreatedAt = System.DateTime.Now
-                    });
-                }
+                    Name = kvp.Key,
+                    IconCode = kvp.Value,
+                    UserId = userId,
+                    CreatedAt = System.DateTime.Now
+                });
             }
+        }
+        db.SaveChanges();
+    }
+
+    public Category AddCategory(int userId, string name, string iconCode)
+    {
+        using var db = new AgendaContext();
+        var category = new Category
+        {
+            Name = name,
+            IconCode = iconCode,
+            UserId = userId,
+            CreatedAt = System.DateTime.Now
+        };
+        db.Categories.Add(category);
+        db.SaveChanges();
+        return category;
+    }
+
+    public void UpdateCategory(Category category)
+    {
+        using var db = new AgendaContext();
+        var existing = db.Categories.Find(category.Id);
+        if (existing != null)
+        {
+            existing.Name = category.Name;
+            existing.IconCode = category.IconCode;
             db.SaveChanges();
         }
+    }
 
-        public Category AddCategory(int userId, string name, string iconCode)
+    public void DeleteCategory(int id)
+    {
+        using var db = new AgendaContext();
+        var category = db.Categories.Find(id);
+        if (category != null)
         {
-            using var db = new AgendaContext();
-            var category = new Category
-            {
-                Name = name,
-                IconCode = iconCode,
-                UserId = userId,
-                CreatedAt = System.DateTime.Now
-            };
-            db.Categories.Add(category);
+            category.IsDeleted = true;
             db.SaveChanges();
-            return category;
         }
+    }
+    //----------------------------------------------------------------------
+    public Task<bool> Guardar(Category entidad)
+    {
+        throw new NotImplementedException();
+    }
 
-        public void UpdateCategory(Category category)
-        {
-            using var db = new AgendaContext();
-            var existing = db.Categories.Find(category.Id);
-            if (existing != null)
-            {
-                existing.Name = category.Name;
-                existing.IconCode = category.IconCode;
-                db.SaveChanges();
-            }
-        }
+    public Task<Category?> Buscar(int id)
+    {
+        throw new NotImplementedException();
+    }
 
-        public void DeleteCategory(int id)
-        {
-            using var db = new AgendaContext();
-            var category = db.Categories.Find(id);
-            if (category != null)
-            {
-                category.IsDeleted = true;
-                db.SaveChanges();
-            }
-        }
+    public Task<bool> Eliminar(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<Category>> GetList(Expression<Func<Category, bool>> criterio)
+    {
+        throw new NotImplementedException();
     }
 }

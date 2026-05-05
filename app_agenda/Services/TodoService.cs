@@ -8,20 +8,21 @@ namespace app_agenda.UI.Services;
 
 public class TodoService : Aplicada1.Core.IService<TodoItem, int>
 {
-    // ── IService<TodoItem, int> ──────────────────────────────────────
-    // Operaciones síncronas envueltas en Task.FromResult para evitar
-    // deadlocks al llamar con .GetAwaiter().GetResult() desde el hilo UI.
+    private readonly AgendaContext _db;
+
+    public TodoService(AgendaContext db) => _db = db;
+
+    public TodoService() : this(new AgendaContext()) { }
 
     public Task<bool> Guardar(TodoItem entidad)
     {
         try
         {
-            using var db = new AgendaContext();
             if (entidad.Id == 0)
-                db.TodoItems.Add(entidad);
+                _db.TodoItems.Add(entidad);
             else
-                db.TodoItems.Update(entidad);
-            db.SaveChanges();
+                _db.TodoItems.Update(entidad);
+            _db.SaveChanges();
             return Task.FromResult(true);
         }
         catch { return Task.FromResult(false); }
@@ -29,19 +30,17 @@ public class TodoService : Aplicada1.Core.IService<TodoItem, int>
 
     public Task<TodoItem?> Buscar(int id)
     {
-        using var db = new AgendaContext();
-        return Task.FromResult(db.TodoItems.Find(id));
+        return Task.FromResult(_db.TodoItems.Find(id));
     }
 
     public Task<bool> Eliminar(int id)
     {
         try
         {
-            using var db = new AgendaContext();
-            var todo = db.TodoItems.Find(id);
+            var todo = _db.TodoItems.Find(id);
             if (todo == null) return Task.FromResult(false);
             todo.IsDeleted = true;
-            db.SaveChanges();
+            _db.SaveChanges();
             return Task.FromResult(true);
         }
         catch { return Task.FromResult(false); }
@@ -49,8 +48,7 @@ public class TodoService : Aplicada1.Core.IService<TodoItem, int>
 
     public Task<List<TodoItem>> GetList(Expression<Func<TodoItem, bool>> criterio)
     {
-        using var db = new AgendaContext();
-        return Task.FromResult(db.TodoItems.Where(criterio).ToList());
+        return Task.FromResult(_db.TodoItems.Where(criterio).ToList());
     }
 
     // ── Métodos de mios  ───────────────
