@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(dotnet tool *)",
-      "Bash(find /c/Users/ortiz/.nuget/packages/aplicada1.core -name \"*.xml\" -o -name \"*.cs\")",
-      "Bash(dotnet build *)"
-    ]
-  }
-}
