@@ -53,7 +53,7 @@ public class TodoService : Aplicada1.Core.IService<TodoItem, int>
         return Task.FromResult(db.TodoItems.Where(criterio).ToList());
     }
 
-    // ── Métodos de la aplicación (delegan en IService) ───────────────
+    // ── Métodos de mios  ───────────────
 
     public List<TodoItem> GetTodos(int userId)
     {

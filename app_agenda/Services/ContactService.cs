@@ -2,10 +2,11 @@ using app_agenda.Data;
 using app_agenda.Data.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace app_agenda.UI.Services
 {
-    public class ContactService
+    public class ContactService:Aplicada1.Core.IService<Contact, int>
     {
         public List<Contact> GetContacts(int userId, int? categoryId = null)
         {
@@ -88,6 +89,26 @@ namespace app_agenda.UI.Services
                 contact.IsDeleted = true;
                 db.SaveChanges();
             }
+        }
+        //------------------------------------------------------------------------------------
+        public Task<bool> Guardar(Contact entidad)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Contact?> Buscar(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> Eliminar(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<Contact>> GetList(Expression<Func<Contact, bool>> criterio)
+        {
+            throw new NotImplementedException();
         }
     }
 }

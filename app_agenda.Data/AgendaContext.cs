@@ -9,6 +9,15 @@ namespace app_agenda.Data
 {
     public class AgendaContext : DbContext
     {
+        public AgendaContext()
+        {
+        }
+
+        public AgendaContext(DbContextOptions<AgendaContext> options)
+            : base(options)
+        {
+        }
+
         public DbSet<User> Users { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Contact> Contacts { get; set; }
