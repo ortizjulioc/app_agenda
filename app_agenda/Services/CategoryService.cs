@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace app_agenda.UI.Services;
 
-public class CategoryService:Aplicada1.Core.IService<Category, int>
+public class CategoryService : Aplicada1.Core.IService<Category, int>
 {
     private static readonly Dictionary<string, string> DefaultCategories = new()
     {
@@ -16,19 +16,57 @@ public class CategoryService:Aplicada1.Core.IService<Category, int>
         { "General", "Folder" }
     };
 
-    public List<Category> GetCategoriesByUser(int userId)
+    private readonly AgendaContext _db;
+
+    public CategoryService(AgendaContext db) => _db = db;
+
+    public CategoryService() : this(new AgendaContext()) { }
+
+    public Task<bool> Guardar(Category entidad)
     {
-        using var db = new AgendaContext();
-        return db.Categories
-            .Where(c => c.UserId == userId)
-            .OrderBy(c => c.Name)
-.ToList();
+        try
+        {
+            if (entidad.Id == 0)
+                _db.Categories.Add(entidad);
+            else
+                _db.Categories.Update(entidad);
+            _db.SaveChanges();
+            return Task.FromResult(true);
+        }
+        catch { return Task.FromResult(false); }
     }
+
+    public Task<Category?> Buscar(int id)
+    {
+        return Task.FromResult(_db.Categories.Find(id));
+    }
+
+    public Task<bool> Eliminar(int id)
+    {
+        try
+        {
+            var category = _db.Categories.Find(id);
+            if (category == null) return Task.FromResult(false);
+            category.IsDeleted = true;
+            _db.SaveChanges();
+            return Task.FromResult(true);
+        }
+        catch { return Task.FromResult(false); }
+    }
+
+    public Task<List<Category>> GetList(Expression<Func<Category, bool>> criterio)
+    {
+        return Task.FromResult(_db.Categories.Where(criterio).ToList());
+    }
+
+    // ── Métodos de mios ───────────────
+
+    public List<Category> GetCategoriesByUser(int userId)
+        => _db.Categories.Where(c => c.UserId == userId).OrderBy(c => c.Name).ToList();
 
     public void EnsureDefaultCategories(int userId)
     {
-        using var db = new AgendaContext();
-        var existingNames = db.Categories
+        var existingNames = _db.Categories
             .Where(c => c.UserId == userId)
             .Select(c => c.Name)
             .ToList();
@@ -37,73 +75,41 @@ public class CategoryService:Aplicada1.Core.IService<Category, int>
         {
             if (!existingNames.Contains(kvp.Key))
             {
-                db.Categories.Add(new Category
+                _db.Categories.Add(new Category
                 {
                     Name = kvp.Key,
                     IconCode = kvp.Value,
                     UserId = userId,
-                    CreatedAt = System.DateTime.Now
+                    CreatedAt = DateTime.Now
                 });
             }
         }
-        db.SaveChanges();
+        _db.SaveChanges();
     }
 
     public Category AddCategory(int userId, string name, string iconCode)
     {
-        using var db = new AgendaContext();
         var category = new Category
         {
             Name = name,
             IconCode = iconCode,
             UserId = userId,
-            CreatedAt = System.DateTime.Now
+            CreatedAt = DateTime.Now
         };
-        db.Categories.Add(category);
-        db.SaveChanges();
+        Guardar(category).GetAwaiter().GetResult();
         return category;
     }
 
     public void UpdateCategory(Category category)
     {
-        using var db = new AgendaContext();
-        var existing = db.Categories.Find(category.Id);
+        var existing = Buscar(category.Id).GetAwaiter().GetResult();
         if (existing != null)
         {
             existing.Name = category.Name;
             existing.IconCode = category.IconCode;
-            db.SaveChanges();
+            _db.SaveChanges();
         }
     }
 
-    public void DeleteCategory(int id)
-    {
-        using var db = new AgendaContext();
-        var category = db.Categories.Find(id);
-        if (category != null)
-        {
-            category.IsDeleted = true;
-            db.SaveChanges();
-        }
-    }
-    //----------------------------------------------------------------------
-    public Task<bool> Guardar(Category entidad)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Category?> Buscar(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<bool> Eliminar(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<List<Category>> GetList(Expression<Func<Category, bool>> criterio)
-    {
-        throw new NotImplementedException();
-    }
+    public void DeleteCategory(int id) => Eliminar(id).GetAwaiter().GetResult();
 }
