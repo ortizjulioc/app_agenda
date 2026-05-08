@@ -58,7 +58,7 @@ namespace app_agenda.UI
             panelWhite.Location = new Point(40, 40);
             panelWhite.Name = "panelWhite";
             panelWhite.Padding = new Padding(30, 60, 30, 30);
-            panelWhite.Size = new Size(320, 420);
+            panelWhite.Size = new Size(320, 437);
             panelWhite.TabIndex = 1;
             // 
             // pictureUser
@@ -84,7 +84,7 @@ namespace app_agenda.UI
             txtUser.Location = new Point(30, 175);
             txtUser.Name = "txtUser";
             txtUser.PlaceholderText = "Usuario";
-            txtUser.Size = new Size(260, 20);
+            txtUser.Size = new Size(260, 30);
             txtUser.TabIndex = 1;
             // 
             // panelLine1
@@ -104,7 +104,7 @@ namespace app_agenda.UI
             txtPass.Location = new Point(30, 245);
             txtPass.Name = "txtPass";
             txtPass.PlaceholderText = "Contraseña";
-            txtPass.Size = new Size(260, 20);
+            txtPass.Size = new Size(260, 30);
             txtPass.TabIndex = 3;
             txtPass.UseSystemPasswordChar = true;
             txtPass.TextChanged += txtPass_TextChanged;
@@ -145,7 +145,7 @@ namespace app_agenda.UI
             linkRegister.LinkColor = Color.FromArgb(36, 158, 160);
             linkRegister.Location = new Point(27, 385);
             linkRegister.Name = "linkRegister";
-            linkRegister.Size = new Size(260, 20);
+            linkRegister.Size = new Size(260, 38);
             linkRegister.TabIndex = 6;
             linkRegister.TabStop = true;
             linkRegister.Text = "Crear cuenta nueva";

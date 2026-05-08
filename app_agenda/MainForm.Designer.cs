@@ -114,16 +114,16 @@ namespace app_agenda
             pnlHeader.Dock = DockStyle.Top;
             pnlHeader.Location = new Point(250, 0);
             pnlHeader.Name = "pnlHeader";
-            pnlHeader.Size = new Size(777, 60);
+            pnlHeader.Size = new Size(777, 75);
             pnlHeader.TabIndex = 1;
-            // 
+            //
             // lblWelcome
-            // 
+            //
+            lblWelcome.AutoSize = true;
             lblWelcome.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
             lblWelcome.ForeColor = Color.FromArgb(36, 158, 160);
-            lblWelcome.Location = new Point(20, 18);
+            lblWelcome.Location = new Point(20, 22);
             lblWelcome.Name = "lblWelcome";
-            lblWelcome.Size = new Size(300, 24);
             lblWelcome.TabIndex = 0;
             // 
             // btnLogout
@@ -137,7 +137,8 @@ namespace app_agenda
             btnLogout.IconChar = IconChar.SignOutAlt;
             btnLogout.IconColor = Color.FromArgb(36, 158, 160);
             btnLogout.IconFont = IconFont.Auto;
-            btnLogout.Location = new Point(600, 10);
+            btnLogout.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnLogout.Location = new Point(625, 18);
             btnLogout.Name = "btnLogout";
             btnLogout.Size = new Size(130, 40);
             btnLogout.TabIndex = 1;
@@ -149,9 +150,10 @@ namespace app_agenda
             // pnlHeaderSeparator
             // 
             pnlHeaderSeparator.BackColor = Color.FromArgb(224, 224, 224);
-            pnlHeaderSeparator.Location = new Point(0, 59);
+            pnlHeaderSeparator.Dock = DockStyle.Bottom;
+            pnlHeaderSeparator.Location = new Point(0, 74);
             pnlHeaderSeparator.Name = "pnlHeaderSeparator";
-            pnlHeaderSeparator.Size = new Size(750, 1);
+            pnlHeaderSeparator.Size = new Size(777, 1);
             pnlHeaderSeparator.TabIndex = 2;
             // 
             // pnlContent

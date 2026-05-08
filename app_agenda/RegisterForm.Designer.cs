@@ -95,7 +95,7 @@ namespace app_agenda.UI
             txtUser.Location = new Point(30, 155);
             txtUser.Name = "txtUser";
             txtUser.PlaceholderText = "Usuario";
-            txtUser.Size = new Size(260, 20);
+            txtUser.Size = new Size(260, 30);
             txtUser.TabIndex = 1;
             // 
             // panelLine1
@@ -115,7 +115,7 @@ namespace app_agenda.UI
             txtPass.Location = new Point(30, 225);
             txtPass.Name = "txtPass";
             txtPass.PlaceholderText = "Contraseña";
-            txtPass.Size = new Size(260, 20);
+            txtPass.Size = new Size(260, 30);
             txtPass.TabIndex = 3;
             txtPass.UseSystemPasswordChar = true;
             // 
@@ -136,7 +136,7 @@ namespace app_agenda.UI
             txtConfirmPass.Location = new Point(30, 295);
             txtConfirmPass.Name = "txtConfirmPass";
             txtConfirmPass.PlaceholderText = "Confirmar Contraseña";
-            txtConfirmPass.Size = new Size(260, 20);
+            txtConfirmPass.Size = new Size(260, 30);
             txtConfirmPass.TabIndex = 5;
             txtConfirmPass.UseSystemPasswordChar = true;
             // 
@@ -175,7 +175,7 @@ namespace app_agenda.UI
             linkLogin.LinkColor = Color.FromArgb(36, 158, 160);
             linkLogin.Location = new Point(30, 420);
             linkLogin.Name = "linkLogin";
-            linkLogin.Size = new Size(260, 20);
+            linkLogin.Size = new Size(260, 39);
             linkLogin.TabIndex = 8;
             linkLogin.TabStop = true;
             linkLogin.Text = "¿Ya tienes cuenta? Inicia sesión";

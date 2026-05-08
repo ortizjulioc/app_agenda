@@ -12,12 +12,14 @@ namespace app_agenda.UI.Popups
 
         private readonly bool _isEdit;
         private readonly int _userId;
+        private readonly Contact? _original;
         private readonly List<Category> _categories;
 
         public ContactForm(int userId, Contact? contact = null)
         {
             _isEdit = contact != null;
             _userId = userId;
+            _original = contact;
             _categories = new CategoryService().GetCategoriesByUser(userId);
 
             InitializeComponent();
@@ -70,7 +72,7 @@ namespace app_agenda.UI.Popups
 
             Contact = new Contact
             {
-                Id = _isEdit ? Contact.Id : 0,
+                Id = _isEdit && _original != null ? _original.Id : 0,
                 Name = _txtName.Text.Trim(),
                 PhoneNumber = _txtPhone.Text.Trim(),
                 CategoryId = selectedCat.Id,
