@@ -39,13 +39,15 @@ namespace app_agenda.UI.UserControls
             BackColor = PageBg;
 
             // Corazón a la izquierda, FUERA del panel redondeado
+            // Centrado vertical: y = (70 - 44) / 2 = 13
+            // Centrado horizontal entre x=0 y x=46 (antes del panel en x=48): x = (46 - 44) / 2 = 1
             _iconFavorite = new IconPictureBox
             {
-                Size = new Size(38, 38),
-                Location = new Point(4, 16),
+                Size = new Size(44, 44),
+                Location = new Point(2, 13),
                 IconChar = IconChar.Heart,
-                IconSize = 32,
-                ForeColor = contact.IsFavorite ? Color.Red : Color.FromArgb(120, 120, 120),
+                IconSize = 38,
+                ForeColor = contact.IsFavorite ? Color.Red : Color.FromArgb(150, 150, 150),
                 BackColor = PageBg,
                 Cursor = Cursors.Hand
             };
