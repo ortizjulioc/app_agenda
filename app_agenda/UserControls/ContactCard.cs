@@ -34,17 +34,17 @@ namespace app_agenda.UI.UserControls
             _onEdit = onEdit;
             _onDelete = onDelete;
 
-            Size = new Size(600, 64);
+            Size = new Size(600, 70);
             Margin = new Padding(8, 4, 8, 4);
             BackColor = PageBg;
 
             // Corazón a la izquierda, FUERA del panel redondeado
             _iconFavorite = new IconPictureBox
             {
-                Size = new Size(28, 28),
-                Location = new Point(8, 18),
+                Size = new Size(38, 38),
+                Location = new Point(4, 16),
                 IconChar = IconChar.Heart,
-                IconSize = 26,
+                IconSize = 32,
                 ForeColor = contact.IsFavorite ? Color.Red : Color.FromArgb(120, 120, 120),
                 BackColor = PageBg,
                 Cursor = Cursors.Hand
@@ -54,17 +54,17 @@ namespace app_agenda.UI.UserControls
             // Panel redondeado azul claro (estilo "pill")
             _cardPanel = new RoundedPanel
             {
-                Size = new Size(460, 48),
-                Location = new Point(44, 8),
+                Size = new Size(460, 50),
+                Location = new Point(48, 10),
                 BackColor = ColorTranslator.FromHtml("#8DB3E2"),
-                CornerRadius = 24
+                CornerRadius = 25
             };
 
             // Nombre — grande, blanco, dentro del panel
             _lblName = new Label
             {
                 Text = contact.Name,
-                Location = new Point(22, 6),
+                Location = new Point(22, 7),
                 Size = new Size(190, 36),
                 ForeColor = Color.White,
                 Font = new Font("Segoe UI", 14, FontStyle.Bold),
@@ -78,7 +78,7 @@ namespace app_agenda.UI.UserControls
             _lblPhone = new Label
             {
                 Text = contact.PhoneNumber,
-                Location = new Point(220, 10),
+                Location = new Point(220, 11),
                 Size = new Size(225, 28),
                 ForeColor = DarkAccent,
                 Font = new Font("Segoe UI", 11),
@@ -91,11 +91,11 @@ namespace app_agenda.UI.UserControls
             // Botón Editar (lápiz) — FUERA del panel, color oscuro
             _btnEdit = new IconButton
             {
-                Size = new Size(32, 32),
-                Location = new Point(514, 16),
+                Size = new Size(40, 40),
+                Location = new Point(514, 15),
                 IconChar = IconChar.Pencil,
                 IconColor = DarkAccent,
-                IconSize = 22,
+                IconSize = 28,
                 FlatStyle = FlatStyle.Flat,
                 FlatAppearance = { BorderSize = 0 },
                 Cursor = Cursors.Hand,
@@ -106,11 +106,11 @@ namespace app_agenda.UI.UserControls
             // Botón Eliminar (zafacón) — FUERA del panel, rojo
             _btnDelete = new IconButton
             {
-                Size = new Size(32, 32),
-                Location = new Point(552, 16),
+                Size = new Size(40, 40),
+                Location = new Point(556, 15),
                 IconChar = IconChar.Trash,
                 IconColor = Color.FromArgb(255, 82, 82),
-                IconSize = 22,
+                IconSize = 28,
                 FlatStyle = FlatStyle.Flat,
                 FlatAppearance = { BorderSize = 0 },
                 Cursor = Cursors.Hand,

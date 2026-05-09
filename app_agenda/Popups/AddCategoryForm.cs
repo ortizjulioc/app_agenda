@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using FontAwesome.Sharp;
+using app_agenda.Data.Models;
 
 namespace app_agenda.UI.Popups
 {
@@ -14,9 +16,11 @@ namespace app_agenda.UI.Popups
         private IconPictureBox _selectedIcon;
         private string _selectedIconCode = "Folder";
         private readonly List<KeyValuePair<string, IconChar>> _availableIcons;
+        private readonly bool _isEdit;
 
-        public AddCategoryForm()
+        public AddCategoryForm(Category? existing = null)
         {
+            _isEdit = existing != null;
             _availableIcons = new List<KeyValuePair<string, IconChar>>
             {
                 new("Folder", IconChar.Folder),
@@ -46,6 +50,18 @@ namespace app_agenda.UI.Popups
             {
                 if (e.KeyCode == Keys.Enter) BtnSave_Click(s, e);
             };
+
+            if (_isEdit && existing != null)
+            {
+                lblTitle.Text = "Editar Categoría";
+                Text = lblTitle.Text;
+                _txtName.Text = existing.Name;
+                _selectedIconCode = existing.IconCode;
+
+                var match = _availableIcons.FirstOrDefault(i => i.Key == existing.IconCode);
+                if (!string.IsNullOrEmpty(match.Key))
+                    _selectedIcon.IconChar = match.Value;
+            }
         }
 
         private Panel CreateIconButton(string code, IconChar iconChar)
