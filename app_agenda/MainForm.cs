@@ -277,37 +277,66 @@ namespace app_agenda
             ShowSearchPanel(false);
             flpDisplay!.Controls.Clear();
 
-            var inputPanel = new Panel { Size = new Size(750, 50), BackColor = Color.White };
+            // Ancho responsivo: ocupa el área disponible menos espacio para el scrollbar y los márgenes
+            int viewportWidth = flpDisplay.ClientSize.Width;
+            if (viewportWidth <= 0) viewportWidth = pnlContent.ClientSize.Width;
+            if (viewportWidth <= 0) viewportWidth = 600;
+            int rowWidth = Math.Max(340, viewportWidth - 30);
+
+            const int btnW = 120;
+            const int padL = 16;
+            const int padR = 16;
+            const int gap = 12;
+
+            var inputPanel = new Panel
+            {
+                Size = new Size(rowWidth, 60),
+                BackColor = Color.White,
+                Margin = new Padding(4, 6, 4, 8)
+            };
+
             var txtNewTodo = new TextBox
             {
-                Location = new Point(20, 10),
-                Size = new Size(500, 26),
-                Font = new Font("Segoe UI", 10),
+                Location = new Point(padL, 16),
+                Size = new Size(rowWidth - padL - btnW - gap - padR, 28),
+                Font = new Font("Verdana", 12),
                 BorderStyle = BorderStyle.FixedSingle
             };
 
             var btnAddTodo = new IconButton
             {
                 Text = "Agregar",
-                Location = new Point(530, 8),
-                Size = new Size(110, 36),
+                Location = new Point(rowWidth - btnW - padR, 12),
+                Size = new Size(btnW, 36),
                 IconChar = IconChar.Plus,
                 IconColor = Color.White,
                 IconSize = 20,
                 BackColor = ColorTranslator.FromHtml("#249EA0"),
                 FlatStyle = FlatStyle.Flat,
+                ForeColor = Color.White,
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 Cursor = Cursors.Hand,
                 Font = new Font("Segoe UI", 10, FontStyle.Bold)
             };
             btnAddTodo.FlatAppearance.BorderSize = 0;
-            btnAddTodo.Click += (s, e) =>
+
+            void AddCurrentTodo()
             {
                 if (!string.IsNullOrWhiteSpace(txtNewTodo.Text))
                 {
                     _todoService.AddTodo(_currentUserId, txtNewTodo.Text.Trim());
                     txtNewTodo.Clear();
                     LoadTodos();
+                }
+            }
+
+            btnAddTodo.Click += (s, e) => AddCurrentTodo();
+            txtNewTodo.KeyDown += (s, e) =>
+            {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    AddCurrentTodo();
+                    e.SuppressKeyPress = true;
                 }
             };
 
@@ -316,7 +345,10 @@ namespace app_agenda
 
             var todos = _todoService.GetTodos(_currentUserId);
             foreach (var todo in todos)
-                flpDisplay.Controls.Add(CreateTodoItem(todo));
+                flpDisplay.Controls.Add(CreateTodoItem(todo, rowWidth));
+
+            // Foco automático en el textbox al entrar a To Do List
+            BeginInvoke(new Action(() => txtNewTodo.Focus()));
         }
 
         private void ShowSearchPanel(bool show)
@@ -339,9 +371,9 @@ namespace app_agenda
                 });
         }
 
-        private UserControl CreateTodoItem(TodoItem todo)
+        private UserControl CreateTodoItem(TodoItem todo, int width)
         {
-            return new TodoItemControl(todo,
+            return new TodoItemControl(todo, width,
                 id => { _todoService.ToggleTodo(id); LoadTodos(); },
                 id =>
                 {
