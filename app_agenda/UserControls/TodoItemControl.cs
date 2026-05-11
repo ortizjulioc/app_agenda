@@ -37,7 +37,6 @@ namespace app_agenda.UI.UserControls
                 BackColor = Color.White
             };
 
-            // Línea inferior teal — usando Paint para que persista entre redibujados
             _cardPanel.Paint += (s, e) =>
             {
                 using var pen = new Pen(TealAccent, 2);

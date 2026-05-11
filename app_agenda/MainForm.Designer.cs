@@ -87,7 +87,7 @@ namespace app_agenda
             iconLogo.IconColor = Color.White;
             iconLogo.IconFont = IconFont.Auto;
             iconLogo.IconSize = 45;
-            iconLogo.Location = new Point(18, 37);
+            iconLogo.Location = new Point(18, 27);
             iconLogo.Name = "iconLogo";
             iconLogo.Size = new Size(45, 45);
             iconLogo.TabIndex = 0;
@@ -99,9 +99,9 @@ namespace app_agenda
             lblLogo.BackColor = Color.Transparent;
             lblLogo.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
             lblLogo.ForeColor = Color.White;
-            lblLogo.Location = new Point(58, 32);
+            lblLogo.Location = new Point(58, 31);
             lblLogo.Name = "lblLogo";
-            lblLogo.Size = new Size(185, 45);
+            lblLogo.Size = new Size(126, 30);
             lblLogo.TabIndex = 1;
             lblLogo.Text = "Mi Agenda";
             // 
@@ -124,7 +124,7 @@ namespace app_agenda
             lblWelcome.ForeColor = Color.FromArgb(36, 158, 160);
             lblWelcome.Location = new Point(20, 22);
             lblWelcome.Name = "lblWelcome";
-            lblWelcome.Size = new Size(0, 38);
+            lblWelcome.Size = new Size(0, 25);
             lblWelcome.TabIndex = 0;
             // 
             // btnLogout
@@ -202,7 +202,7 @@ namespace app_agenda
             btnAddContact.IconColor = Color.White;
             btnAddContact.IconFont = IconFont.Auto;
             btnAddContact.IconSize = 24;
-            btnAddContact.Location = new Point(307, 14);
+            btnAddContact.Location = new Point(307, 8);
             btnAddContact.Name = "btnAddContact";
             btnAddContact.Size = new Size(130, 40);
             btnAddContact.TabIndex = 0;
@@ -217,7 +217,7 @@ namespace app_agenda
             txtSearch.Font = new Font("Segoe UI", 10F);
             txtSearch.Location = new Point(101, 17);
             txtSearch.Name = "txtSearch";
-            txtSearch.Size = new Size(200, 34);
+            txtSearch.Size = new Size(200, 25);
             txtSearch.TabIndex = 1;
             txtSearch.TextChanged += TxtSearch_TextChanged;
             // 
