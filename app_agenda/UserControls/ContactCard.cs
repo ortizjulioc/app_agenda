@@ -36,54 +36,56 @@ namespace app_agenda.UI.UserControls
             this.Size = new Size(620, 70);
             this.Margin = new Padding(10, 5, 10, 5);
             this.BackColor = PageBg;
+            this.SetStyle(ControlStyles.SupportsTransparentBackColor, false);
 
-            // 1. Botón de Favorito
+            // 1. Botón de Favorito 
             _iconFavorite = new IconPictureBox
             {
                 Size = new Size(40, 40),
                 Location = new Point(5, 15),
-                IconChar = IconChar.Heart, 
+                IconChar = IconChar.Heart,
                 IconSize = 32,
                 ForeColor = contact.IsFavorite ? Color.Red : Color.FromArgb(150, 150, 150),
-                BackColor = Color.Transparent,
+                BackColor = PageBg, 
                 Cursor = Cursors.Hand
             };
             _iconFavorite.Click += (s, e) => _onFavoriteToggle(_contact.Id);
 
-            // 2. Panel Central (Cuerpo de la Card)
+            // 2. Panel Central
             _cardPanel = new RoundedPanel
             {
                 Size = new Size(480, 50),
                 Location = new Point(50, 10),
                 BackColor = CardBlue,
-                CornerRadius = 25,
-                Padding = new Padding(0)
+                CornerRadius = 25
             };
 
             // 3. Etiquetas de texto
             _lblName = new Label
             {
-                Text = contact.Name,
-                Location = new Point(20, 0), 
-                Size = new Size(200, 50),  
+                Text = contact.Name.Replace("\r", "").Replace("\n", ""),
+                Location = new Point(20, 10), 
+                Size = new Size(180, 30),    
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI Semibold", 14),
-                AutoSize = false,        
-                AutoEllipsis = true,     
+                Font = new Font("Segoe UI Semibold", 13),
+                AutoSize = false,
+                AutoEllipsis = true,
                 TextAlign = ContentAlignment.MiddleLeft,
-                BackColor = Color.Transparent
+                BackColor = CardBlue,
+                UseCompatibleTextRendering = true
             };
 
             _lblPhone = new Label
             {
                 Text = contact.PhoneNumber,
-                Location = new Point(220, 0), 
-                Size = new Size(240, 50),    
+                Location = new Point(210, 10), 
+                Size = new Size(250, 30),     
                 ForeColor = Color.White,
                 Font = new Font("Segoe UI", 14f),
-                AutoSize = false,             
+                AutoSize = false,
                 TextAlign = ContentAlignment.MiddleLeft,
-                BackColor = Color.Transparent
+                BackColor = CardBlue,
+                UseCompatibleTextRendering = true
             };
 
             // 4. Botones Laterales
@@ -101,8 +103,18 @@ namespace app_agenda.UI.UserControls
             this.Controls.Add(_btnEdit);
             this.Controls.Add(_btnDelete);
 
-            _cardPanel.MouseEnter += (s, e) => _cardPanel.BackColor = CardHover;
-            _cardPanel.MouseLeave += (s, e) => _cardPanel.BackColor = CardBlue;
+            _cardPanel.MouseEnter += (s, e) => UpdateColors(CardHover);
+            _cardPanel.MouseLeave += (s, e) => UpdateColors(CardBlue);
+
+            _lblName.MouseEnter += (s, e) => UpdateColors(CardHover);
+            _lblPhone.MouseEnter += (s, e) => UpdateColors(CardHover);
+        }
+
+        private void UpdateColors(Color color)
+        {
+            _cardPanel.BackColor = color;
+            _lblName.BackColor = color;
+            _lblPhone.BackColor = color;
         }
 
         private IconButton CreateActionButton(IconChar icon, Color color, int xPos)
@@ -117,21 +129,26 @@ namespace app_agenda.UI.UserControls
                 FlatStyle = FlatStyle.Flat,
                 FlatAppearance = { BorderSize = 0, MouseOverBackColor = Color.FromArgb(225, 225, 230) },
                 Cursor = Cursors.Hand,
-                BackColor = Color.Transparent
+                BackColor = PageBg 
             };
         }
 
         public void UpdateFavorite(bool isFavorite)
         {
             _contact.IsFavorite = isFavorite;
-            _iconFavorite.IconChar = isFavorite ? IconChar.HeartCircleCheck : IconChar.Heart;
-            _iconFavorite.ForeColor = isFavorite ? Color.Crimson : Color.DarkGray;
+            _iconFavorite.ForeColor = isFavorite ? Color.Red : Color.FromArgb(150, 150, 150);
         }
 
         private class RoundedPanel : Panel
         {
             [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
             public int CornerRadius { get; set; } = 25;
+
+            public RoundedPanel()
+            {
+                this.DoubleBuffered = true;
+            }
+
             protected override void OnPaint(PaintEventArgs e)
             {
                 base.OnPaint(e);
@@ -144,6 +161,7 @@ namespace app_agenda.UI.UserControls
             {
                 GraphicsPath path = new GraphicsPath();
                 float d = radius * 2F;
+                if (d <= 0) d = 1;
                 path.AddArc(rect.X, rect.Y, d, d, 180, 90);
                 path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
                 path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
