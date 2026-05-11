@@ -17,33 +17,36 @@ namespace app_agenda.UI.UserControls
         private readonly Label _lblTitle;
         private readonly IconButton _btnDelete;
 
-        public TodoItemControl(TodoItem todo, Action<int> onToggle, Action<int> onDelete)
+        private static readonly Color TealAccent = ColorTranslator.FromHtml("#249EA0");
+        private static readonly Color TextColor = Color.FromArgb(40, 40, 60);
+
+        public TodoItemControl(TodoItem todo, int width, Action<int> onToggle, Action<int> onDelete)
         {
             _todo = todo;
             _onToggle = onToggle;
             _onDelete = onDelete;
 
-            Size = new Size(560, 48);
-            Margin = new Padding(8, 4, 8, 4);
+            int innerWidth = Math.Max(280, width - 8);
+            Size = new Size(width, 56);
+            Margin = new Padding(4, 2, 4, 2);
 
             _cardPanel = new Panel
             {
-                Size = new Size(544, 48),
+                Size = new Size(innerWidth, 56),
                 Location = new Point(0, 0),
-                BackColor = Color.White,
-                Dock = DockStyle.None
+                BackColor = Color.White
             };
 
-            using (var g = _cardPanel.CreateGraphics())
-            using (var pen = new Pen(ColorTranslator.FromHtml("#249EA0"), 2))
+            _cardPanel.Paint += (s, e) =>
             {
-                g.DrawLine(pen, 0, 47, 544, 47);
-            }
+                using var pen = new Pen(TealAccent, 2);
+                e.Graphics.DrawLine(pen, 0, _cardPanel.Height - 2, _cardPanel.Width, _cardPanel.Height - 2);
+            };
 
             _chkCompleted = new CheckBox
             {
-                Location = new Point(12, 12),
-                Size = new Size(24, 24),
+                Location = new Point(14, 18),
+                Size = new Size(22, 22),
                 Checked = todo.IsCompleted,
                 Cursor = Cursors.Hand,
                 BackColor = Color.Transparent
@@ -53,21 +56,22 @@ namespace app_agenda.UI.UserControls
             _lblTitle = new Label
             {
                 Text = todo.Title,
-                Location = new Point(48, 14),
-                Size = new Size(420, 22),
-                ForeColor = todo.IsCompleted ? Color.Gray : Color.Black,
-                Font = new Font("Segoe UI", 10),
-                AutoEllipsis = true
+                Location = new Point(46, 12),
+                Size = new Size(innerWidth - 46 - 56, 32),
+                ForeColor = todo.IsCompleted ? Color.Gray : TextColor,
+                Font = new Font("Verdana", 12, todo.IsCompleted ? FontStyle.Strikeout : FontStyle.Regular),
+                AutoEllipsis = true,
+                TextAlign = ContentAlignment.MiddleLeft,
+                BackColor = Color.Transparent
             };
-            if (todo.IsCompleted)
-                _lblTitle.Font = new Font(_lblTitle.Font, FontStyle.Strikeout);
 
             _btnDelete = new IconButton
             {
-                Size = new Size(32, 32),
-                Location = new Point(488, 8),
+                Size = new Size(40, 40),
+                Location = new Point(innerWidth - 48, 8),
                 IconChar = IconChar.Trash,
-                IconColor = ColorTranslator.FromHtml("#249EA0"),
+                IconColor = TealAccent,
+                IconSize = 26,
                 FlatStyle = FlatStyle.Flat,
                 FlatAppearance = { BorderSize = 0 },
                 Cursor = Cursors.Hand,
@@ -82,8 +86,9 @@ namespace app_agenda.UI.UserControls
         public void UpdateCompleted(bool isCompleted)
         {
             _todo.IsCompleted = isCompleted;
-            _lblTitle.ForeColor = isCompleted ? Color.Gray : Color.Black;
-            _lblTitle.Font = new Font(_lblTitle.Font, isCompleted ? FontStyle.Strikeout : FontStyle.Regular);
+            _lblTitle.ForeColor = isCompleted ? Color.Gray : TextColor;
+            _lblTitle.Font = new Font(_lblTitle.Font.FontFamily, _lblTitle.Font.Size,
+                isCompleted ? FontStyle.Strikeout : FontStyle.Regular);
         }
     }
 }

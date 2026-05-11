@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 using app_agenda.Data.Models;
 using app_agenda.UI.Services;
@@ -33,7 +34,12 @@ namespace app_agenda.UI.Popups
             if (_isEdit && contact != null)
             {
                 _txtName.Text = contact.Name;
-                _txtPhone.Text = contact.PhoneNumber;
+
+                // Extraer solo los dígitos del teléfono guardado y dejar que la máscara los formatee
+                var digits = new string(contact.PhoneNumber.Where(char.IsDigit).ToArray());
+                if (digits.Length > 10) digits = digits.Substring(0, 10);
+                _txtPhone.Text = digits;
+
                 _chkFavorite.Checked = contact.IsFavorite;
                 SelectCategory(contact.CategoryId);
             }
@@ -58,9 +64,15 @@ namespace app_agenda.UI.Popups
 
         private void BtnSave_Click(object? sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(_txtName.Text) || string.IsNullOrWhiteSpace(_txtPhone.Text))
+            if (string.IsNullOrWhiteSpace(_txtName.Text))
             {
-                MessageBox.Show("Complete todos los campos obligatorios.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Ingrese el nombre del contacto.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (!_txtPhone.MaskCompleted)
+            {
+                MessageBox.Show("Ingrese un teléfono completo (10 dígitos).", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 

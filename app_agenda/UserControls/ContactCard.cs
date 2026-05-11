@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -22,9 +21,9 @@ namespace app_agenda.UI.UserControls
         private readonly IconButton _btnEdit;
         private readonly IconButton _btnDelete;
 
-        // Color azul oscuro usado para el teléfono y el ícono de editar
-        private static readonly Color DarkAccent = Color.FromArgb(40, 40, 80);
-        // Color del fondo de la página (igual que flpDisplay) — para el área transparente alrededor del card
+        private static readonly Color DarkAccent = Color.FromArgb(45, 52, 71);
+        private static readonly Color CardBlue = ColorTranslator.FromHtml("#8DB3E2");
+        private static readonly Color CardHover = ColorTranslator.FromHtml("#7A9FCF");
         private static readonly Color PageBg = ColorTranslator.FromHtml("#F0F2F5");
 
         public ContactCard(Contact contact, Action<int> onFavoriteToggle, Action<int> onEdit, Action<int> onDelete)
@@ -34,139 +33,123 @@ namespace app_agenda.UI.UserControls
             _onEdit = onEdit;
             _onDelete = onDelete;
 
-            Size = new Size(600, 64);
-            Margin = new Padding(8, 4, 8, 4);
-            BackColor = PageBg;
+            this.Size = new Size(620, 70);
+            this.Margin = new Padding(10, 5, 10, 5);
+            this.BackColor = PageBg;
 
-            // Corazón a la izquierda, FUERA del panel redondeado
+            // 1. Botón de Favorito
             _iconFavorite = new IconPictureBox
             {
-                Size = new Size(28, 28),
-                Location = new Point(8, 18),
-                IconChar = IconChar.Heart,
-                IconSize = 26,
-                ForeColor = contact.IsFavorite ? Color.Red : Color.FromArgb(120, 120, 120),
-                BackColor = PageBg,
+                Size = new Size(40, 40),
+                Location = new Point(5, 15),
+                IconChar = IconChar.Heart, 
+                IconSize = 32,
+                ForeColor = contact.IsFavorite ? Color.Red : Color.FromArgb(150, 150, 150),
+                BackColor = Color.Transparent,
                 Cursor = Cursors.Hand
             };
-            _iconFavorite.MouseClick += (s, e) => _onFavoriteToggle(_contact.Id);
+            _iconFavorite.Click += (s, e) => _onFavoriteToggle(_contact.Id);
 
-            // Panel redondeado azul claro (estilo "pill")
+            // 2. Panel Central (Cuerpo de la Card)
             _cardPanel = new RoundedPanel
             {
-                Size = new Size(460, 48),
-                Location = new Point(44, 8),
-                BackColor = ColorTranslator.FromHtml("#8DB3E2"),
-                CornerRadius = 24
+                Size = new Size(480, 50),
+                Location = new Point(50, 10),
+                BackColor = CardBlue,
+                CornerRadius = 25,
+                Padding = new Padding(0)
             };
 
-            // Nombre — grande, blanco, dentro del panel
+            // 3. Etiquetas de texto
             _lblName = new Label
             {
                 Text = contact.Name,
-                Location = new Point(22, 6),
-                Size = new Size(190, 36),
+                Location = new Point(20, 0), 
+                Size = new Size(200, 50),  
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 14, FontStyle.Bold),
-                AutoSize = false,
-                AutoEllipsis = true,
+                Font = new Font("Segoe UI Semibold", 14),
+                AutoSize = false,        
+                AutoEllipsis = true,     
                 TextAlign = ContentAlignment.MiddleLeft,
                 BackColor = Color.Transparent
             };
 
-            // Teléfono — al lado del nombre, en azul oscuro
             _lblPhone = new Label
             {
                 Text = contact.PhoneNumber,
-                Location = new Point(220, 10),
-                Size = new Size(225, 28),
-                ForeColor = DarkAccent,
-                Font = new Font("Segoe UI", 11),
-                AutoSize = false,
-                AutoEllipsis = true,
+                Location = new Point(220, 0), 
+                Size = new Size(240, 50),    
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 14f),
+                AutoSize = false,             
                 TextAlign = ContentAlignment.MiddleLeft,
                 BackColor = Color.Transparent
             };
 
-            // Botón Editar (lápiz) — FUERA del panel, color oscuro
-            _btnEdit = new IconButton
+            // 4. Botones Laterales
+            _btnEdit = CreateActionButton(IconChar.PencilAlt, DarkAccent, 540);
+            _btnEdit.Click += (s, e) => _onEdit(_contact.Id);
+
+            _btnDelete = CreateActionButton(IconChar.TrashAlt, Color.FromArgb(230, 70, 70), 580);
+            _btnDelete.Click += (s, e) => _onDelete(_contact.Id);
+
+            _cardPanel.Controls.Add(_lblPhone);
+            _cardPanel.Controls.Add(_lblName);
+
+            this.Controls.Add(_iconFavorite);
+            this.Controls.Add(_cardPanel);
+            this.Controls.Add(_btnEdit);
+            this.Controls.Add(_btnDelete);
+
+            _cardPanel.MouseEnter += (s, e) => _cardPanel.BackColor = CardHover;
+            _cardPanel.MouseLeave += (s, e) => _cardPanel.BackColor = CardBlue;
+        }
+
+        private IconButton CreateActionButton(IconChar icon, Color color, int xPos)
+        {
+            return new IconButton
             {
-                Size = new Size(32, 32),
-                Location = new Point(514, 16),
-                IconChar = IconChar.Pencil,
-                IconColor = DarkAccent,
-                IconSize = 22,
+                Size = new Size(35, 35),
+                Location = new Point(xPos, 18),
+                IconChar = icon,
+                IconColor = color,
+                IconSize = 24,
                 FlatStyle = FlatStyle.Flat,
-                FlatAppearance = { BorderSize = 0 },
+                FlatAppearance = { BorderSize = 0, MouseOverBackColor = Color.FromArgb(225, 225, 230) },
                 Cursor = Cursors.Hand,
-                BackColor = PageBg
+                BackColor = Color.Transparent
             };
-            _btnEdit.MouseClick += (s, e) => _onEdit(_contact.Id);
-
-            // Botón Eliminar (zafacón) — FUERA del panel, rojo
-            _btnDelete = new IconButton
-            {
-                Size = new Size(32, 32),
-                Location = new Point(552, 16),
-                IconChar = IconChar.Trash,
-                IconColor = Color.FromArgb(255, 82, 82),
-                IconSize = 22,
-                FlatStyle = FlatStyle.Flat,
-                FlatAppearance = { BorderSize = 0 },
-                Cursor = Cursors.Hand,
-                BackColor = PageBg
-            };
-            _btnDelete.MouseClick += (s, e) => _onDelete(_contact.Id);
-
-            // Labels van adentro del panel redondeado
-            _cardPanel.Controls.AddRange(new Control[] { _lblName, _lblPhone });
-
-            // Heart, panel y botones van directo en el UserControl
-            Controls.AddRange(new Control[] { _iconFavorite, _cardPanel, _btnEdit, _btnDelete });
         }
 
         public void UpdateFavorite(bool isFavorite)
         {
             _contact.IsFavorite = isFavorite;
-            _iconFavorite.ForeColor = isFavorite ? Color.Red : Color.FromArgb(120, 120, 120);
+            _iconFavorite.IconChar = isFavorite ? IconChar.HeartCircleCheck : IconChar.Heart;
+            _iconFavorite.ForeColor = isFavorite ? Color.Crimson : Color.DarkGray;
         }
 
-        /// <summary>
-        /// Panel con esquinas redondeadas (usa Region para recortar el contorno).
-        /// </summary>
         private class RoundedPanel : Panel
         {
-            [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-            public int CornerRadius { get; set; } = 24;
-
-            public RoundedPanel()
+            [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+            public int CornerRadius { get; set; } = 25;
+            protected override void OnPaint(PaintEventArgs e)
             {
-                SetStyle(ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer, true);
+                base.OnPaint(e);
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                using var path = GetRoundRectPath(ClientRectangle, CornerRadius);
+                this.Region = new Region(path);
             }
 
-            protected override void OnSizeChanged(EventArgs e)
+            private GraphicsPath GetRoundRectPath(Rectangle rect, int radius)
             {
-                base.OnSizeChanged(e);
-                ApplyRoundedRegion();
-            }
-
-            protected override void OnHandleCreated(EventArgs e)
-            {
-                base.OnHandleCreated(e);
-                ApplyRoundedRegion();
-            }
-
-            private void ApplyRoundedRegion()
-            {
-                if (Width <= 0 || Height <= 0) return;
-                int d = Math.Min(CornerRadius * 2, Math.Min(Width, Height));
-                using var path = new GraphicsPath();
-                path.AddArc(0, 0, d, d, 180, 90);
-                path.AddArc(Width - d - 1, 0, d, d, 270, 90);
-                path.AddArc(Width - d - 1, Height - d - 1, d, d, 0, 90);
-                path.AddArc(0, Height - d - 1, d, d, 90, 90);
+                GraphicsPath path = new GraphicsPath();
+                float d = radius * 2F;
+                path.AddArc(rect.X, rect.Y, d, d, 180, 90);
+                path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
+                path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
+                path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90);
                 path.CloseFigure();
-                Region = new Region(path);
+                return path;
             }
         }
     }

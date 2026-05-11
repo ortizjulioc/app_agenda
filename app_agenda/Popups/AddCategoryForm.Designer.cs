@@ -65,49 +65,49 @@ namespace app_agenda.UI.Popups
             lblIcon.Size = new Size(280, 36);
             lblIcon.TabIndex = 3;
             lblIcon.Text = "Icono:";
-            // 
+            //
             // _flpIcons
-            // 
+            //
             _flpIcons.BackColor = Color.FromArgb(240, 242, 245);
             _flpIcons.Location = new Point(20, 164);
             _flpIcons.Name = "_flpIcons";
-            _flpIcons.Size = new Size(280, 60);
+            _flpIcons.Size = new Size(280, 200);
             _flpIcons.TabIndex = 4;
-            // 
+            //
             // btnSave
-            // 
+            //
             btnSave.BackColor = Color.FromArgb(36, 158, 160);
             btnSave.FlatAppearance.BorderSize = 0;
             btnSave.FlatStyle = FlatStyle.Flat;
             btnSave.Font = new Font("Segoe UI", 11F);
             btnSave.ForeColor = Color.White;
-            btnSave.Location = new Point(20, 231);
+            btnSave.Location = new Point(20, 380);
             btnSave.Name = "btnSave";
             btnSave.Size = new Size(130, 36);
             btnSave.TabIndex = 5;
             btnSave.Text = "Guardar";
             btnSave.UseVisualStyleBackColor = false;
             btnSave.Click += BtnSave_Click;
-            // 
+            //
             // btnCancel
-            // 
+            //
             btnCancel.BackColor = Color.White;
             btnCancel.FlatAppearance.BorderSize = 0;
             btnCancel.FlatStyle = FlatStyle.Flat;
             btnCancel.Font = new Font("Segoe UI", 11F);
             btnCancel.ForeColor = Color.FromArgb(36, 158, 160);
-            btnCancel.Location = new Point(170, 231);
+            btnCancel.Location = new Point(170, 380);
             btnCancel.Name = "btnCancel";
             btnCancel.Size = new Size(130, 36);
             btnCancel.TabIndex = 6;
             btnCancel.Text = "Cancelar";
             btnCancel.UseVisualStyleBackColor = false;
             btnCancel.Click += BtnCancel_Click;
-            // 
+            //
             // AddCategoryForm
-            // 
+            //
             BackColor = Color.White;
-            ClientSize = new Size(400, 386);
+            ClientSize = new Size(400, 440);
             Controls.Add(btnCancel);
             Controls.Add(btnSave);
             Controls.Add(_flpIcons);

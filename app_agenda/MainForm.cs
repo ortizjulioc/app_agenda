@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using FontAwesome.Sharp;
 using app_agenda.Data.Models;
@@ -32,9 +33,119 @@ namespace app_agenda
 
             InitializeComponent();
 
+            SetupThinScrollbar();
             LoadCategories();
             LoadContacts(null);
             LoadUserName();
+        }
+
+        // ── Scrollbar custom delgado para flpCategories ──────────────────
+        [DllImport("user32.dll")]
+        private static extern int ShowScrollBar(IntPtr hWnd, int wBar, int bShow);
+        private const int SB_HORZ = 0;
+        private const int SB_VERT = 1;
+
+        private Panel? _scrollThumb;
+        private bool _scrollThumbDragging;
+        private int _scrollThumbDragOffset;
+        private bool _internalScrollUpdate;
+
+        private void HideNativeScrollbars()
+        {
+            if (flpCategories?.IsHandleCreated == true)
+            {
+                ShowScrollBar(flpCategories.Handle, SB_HORZ, 0);
+                ShowScrollBar(flpCategories.Handle, SB_VERT, 0);
+            }
+        }
+
+        private void SetupThinScrollbar()
+        {
+            // Truco para esconder scrollbars nativos pero dejar AutoScroll activo
+            // (el wheel del mouse y la propiedad AutoScrollPosition siguen funcionando)
+            flpCategories.HorizontalScroll.Maximum = 0;
+            flpCategories.AutoScroll = false;
+            flpCategories.VerticalScroll.Visible = false;
+            flpCategories.HorizontalScroll.Visible = false;
+            flpCategories.AutoScroll = true;
+
+            // Belt-and-suspenders: forzar ocultamiento via Win32 cada vez que el FLP recalcule layout
+            flpCategories.HandleCreated += (s, e) => HideNativeScrollbars();
+            flpCategories.Layout += (s, e) => HideNativeScrollbars();
+            flpCategories.SizeChanged += (s, e) => HideNativeScrollbars();
+
+            _scrollThumb = new Panel
+            {
+                Width = 4,
+                BackColor = Color.FromArgb(120, 220, 222),
+                Cursor = Cursors.Hand,
+                Visible = false
+            };
+            pnlSidebar.Controls.Add(_scrollThumb);
+            _scrollThumb.BringToFront();
+
+            flpCategories.Scroll += (s, e) => UpdateScrollThumb();
+            flpCategories.SizeChanged += (s, e) => UpdateScrollThumb();
+            flpCategories.ControlAdded += (s, e) => UpdateScrollThumb();
+            flpCategories.ControlRemoved += (s, e) => UpdateScrollThumb();
+
+            _scrollThumb.MouseDown += (s, e) =>
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    _scrollThumbDragging = true;
+                    _scrollThumbDragOffset = e.Y;
+                }
+            };
+            _scrollThumb.MouseMove += (s, e) =>
+            {
+                if (!_scrollThumbDragging || _scrollThumb == null) return;
+                int trackTop = flpCategories.Top;
+                int trackHeight = flpCategories.Height;
+                int newTop = _scrollThumb.Top + e.Y - _scrollThumbDragOffset;
+                int maxTop = trackTop + trackHeight - _scrollThumb.Height;
+                newTop = Math.Max(trackTop, Math.Min(maxTop, newTop));
+                _scrollThumb.Top = newTop;
+
+                int contentH = flpCategories.DisplayRectangle.Height;
+                int viewH = flpCategories.ClientSize.Height;
+                if (contentH <= viewH) return;
+                float ratio = (float)(newTop - trackTop) / Math.Max(1, trackHeight - _scrollThumb.Height);
+                int scrollPos = (int)(ratio * (contentH - viewH));
+                _internalScrollUpdate = true;
+                flpCategories.AutoScrollPosition = new Point(0, scrollPos);
+                _internalScrollUpdate = false;
+            };
+            _scrollThumb.MouseUp += (s, e) => _scrollThumbDragging = false;
+        }
+
+        private void UpdateScrollThumb()
+        {
+            if (_scrollThumb == null) return;
+            if (_internalScrollUpdate) return;
+
+            int contentH = flpCategories.DisplayRectangle.Height;
+            int viewH = flpCategories.ClientSize.Height;
+
+            if (contentH <= viewH)
+            {
+                _scrollThumb.Visible = false;
+                return;
+            }
+
+            int trackTop = flpCategories.Top;
+            int trackHeight = flpCategories.Height;
+            int thumbHeight = Math.Max(30, (int)((float)viewH / contentH * trackHeight));
+            int scrollPos = -flpCategories.AutoScrollPosition.Y;
+            int maxScroll = contentH - viewH;
+            int thumbTop = trackTop + (maxScroll > 0
+                ? (int)((float)scrollPos / maxScroll * (trackHeight - thumbHeight))
+                : 0);
+
+            _scrollThumb.Size = new Size(4, thumbHeight);
+            _scrollThumb.Location = new Point(pnlSidebar.Width - 8, thumbTop);
+            _scrollThumb.Visible = true;
+            _scrollThumb.BringToFront();
         }
 
         private void SetActiveButton(IconButton btn)
@@ -84,7 +195,7 @@ namespace app_agenda
 
             var separator = new Panel
             {
-                Size = new Size(210, 1),
+                Size = new Size(190, 1),
                 BackColor = Color.FromArgb(50, Color.White),
                 Margin = new Padding(20, 10, 20, 10)
             };
@@ -93,17 +204,19 @@ namespace app_agenda
             var categories = _categoryService.GetCategoriesByUser(_currentUserId);
             foreach (var cat in categories)
             {
+                var capturedCat = cat;
                 var icon = ParseIcon(cat.IconCode);
                 var btn = CreateSidebarButton(cat.Name, icon, () => {
-                    _currentCategoryId = cat.Id;
-                    LoadContacts(cat.Id);
+                    _currentCategoryId = capturedCat.Id;
+                    LoadContacts(capturedCat.Id);
                 });
+                btn.ContextMenuStrip = BuildCategoryContextMenu(capturedCat);
                 flpCategories.Controls.Add(btn);
             }
 
             var separator2 = new Panel
             {
-                Size = new Size(210, 1),
+                Size = new Size(190, 1),
                 BackColor = Color.FromArgb(50, Color.White),
                 Margin = new Padding(20, 10, 20, 10)
             };
@@ -122,14 +235,39 @@ namespace app_agenda
         {
             return code switch
             {
+                "Folder" => IconChar.Folder,
+                "FolderOpen" => IconChar.FolderOpen,
                 "User" => IconChar.User,
-                "Briefcase" => IconChar.Briefcase,
                 "Users" => IconChar.Users,
+                "Briefcase" => IconChar.Briefcase,
+                "Home" => IconChar.House,
+                "House" => IconChar.House,
+                "Building" => IconChar.Building,
                 "Phone" => IconChar.Phone,
+                "Envelope" => IconChar.Envelope,
                 "Heart" => IconChar.Heart,
                 "Star" => IconChar.Star,
-                "Folder" => IconChar.Folder,
-                "Home" => IconChar.House,
+                "Camera" => IconChar.Camera,
+                "Music" => IconChar.Music,
+                "Coffee" => IconChar.Coffee,
+                "Utensils" => IconChar.Utensils,
+                "Plane" => IconChar.Plane,
+                "Car" => IconChar.Car,
+                "Bicycle" => IconChar.Bicycle,
+                "Dumbbell" => IconChar.Dumbbell,
+                "Book" => IconChar.Book,
+                "GraduationCap" => IconChar.GraduationCap,
+                "Globe" => IconChar.Globe,
+                "Calendar" => IconChar.Calendar,
+                "Bell" => IconChar.Bell,
+                "Gift" => IconChar.Gift,
+                "Tag" => IconChar.Tag,
+                "Trophy" => IconChar.Trophy,
+                "Dog" => IconChar.Dog,
+                "Cat" => IconChar.Cat,
+                "Lightbulb" => IconChar.Lightbulb,
+                "CreditCard" => IconChar.CreditCard,
+                "Hospital" => IconChar.Hospital,
                 _ => IconChar.Folder
             };
         }
@@ -164,37 +302,66 @@ namespace app_agenda
             ShowSearchPanel(false);
             flpDisplay!.Controls.Clear();
 
-            var inputPanel = new Panel { Size = new Size(750, 50), BackColor = Color.White };
+            // Ancho responsivo: ocupa el área disponible menos espacio para el scrollbar y los márgenes
+            int viewportWidth = flpDisplay.ClientSize.Width;
+            if (viewportWidth <= 0) viewportWidth = pnlContent.ClientSize.Width;
+            if (viewportWidth <= 0) viewportWidth = 600;
+            int rowWidth = Math.Max(340, viewportWidth - 30);
+
+            const int btnW = 120;
+            const int padL = 16;
+            const int padR = 16;
+            const int gap = 12;
+
+            var inputPanel = new Panel
+            {
+                Size = new Size(rowWidth, 60),
+                BackColor = Color.White,
+                Margin = new Padding(4, 6, 4, 8)
+            };
+
             var txtNewTodo = new TextBox
             {
-                Location = new Point(20, 10),
-                Size = new Size(500, 26),
-                Font = new Font("Segoe UI", 10),
+                Location = new Point(padL, 16),
+                Size = new Size(rowWidth - padL - btnW - gap - padR, 28),
+                Font = new Font("Verdana", 12),
                 BorderStyle = BorderStyle.FixedSingle
             };
 
             var btnAddTodo = new IconButton
             {
                 Text = "Agregar",
-                Location = new Point(530, 8),
-                Size = new Size(110, 36),
+                Location = new Point(rowWidth - btnW - padR, 12),
+                Size = new Size(btnW, 36),
                 IconChar = IconChar.Plus,
                 IconColor = Color.White,
                 IconSize = 20,
                 BackColor = ColorTranslator.FromHtml("#249EA0"),
                 FlatStyle = FlatStyle.Flat,
+                ForeColor = Color.White,
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 Cursor = Cursors.Hand,
                 Font = new Font("Segoe UI", 10, FontStyle.Bold)
             };
             btnAddTodo.FlatAppearance.BorderSize = 0;
-            btnAddTodo.Click += (s, e) =>
+
+            void AddCurrentTodo()
             {
                 if (!string.IsNullOrWhiteSpace(txtNewTodo.Text))
                 {
                     _todoService.AddTodo(_currentUserId, txtNewTodo.Text.Trim());
                     txtNewTodo.Clear();
                     LoadTodos();
+                }
+            }
+
+            btnAddTodo.Click += (s, e) => AddCurrentTodo();
+            txtNewTodo.KeyDown += (s, e) =>
+            {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    AddCurrentTodo();
+                    e.SuppressKeyPress = true;
                 }
             };
 
@@ -203,7 +370,10 @@ namespace app_agenda
 
             var todos = _todoService.GetTodos(_currentUserId);
             foreach (var todo in todos)
-                flpDisplay.Controls.Add(CreateTodoItem(todo));
+                flpDisplay.Controls.Add(CreateTodoItem(todo, rowWidth));
+
+            // Foco automático en el textbox al entrar a To Do List
+            BeginInvoke(new Action(() => txtNewTodo.Focus()));
         }
 
         private void ShowSearchPanel(bool show)
@@ -226,9 +396,9 @@ namespace app_agenda
                 });
         }
 
-        private UserControl CreateTodoItem(TodoItem todo)
+        private UserControl CreateTodoItem(TodoItem todo, int width)
         {
-            return new TodoItemControl(todo,
+            return new TodoItemControl(todo, width,
                 id => { _todoService.ToggleTodo(id); LoadTodos(); },
                 id =>
                 {
@@ -277,6 +447,62 @@ namespace app_agenda
                 _categoryService.AddCategory(_currentUserId, form.CategoryName, form.IconCode);
                 LoadCategories();
             }
+        }
+
+        private ContextMenuStrip BuildCategoryContextMenu(Category cat)
+        {
+            var ctx = new ContextMenuStrip
+            {
+                Font = new Font("Segoe UI", 10),
+                ShowImageMargin = false
+            };
+
+            var editItem = new ToolStripMenuItem("Editar");
+            editItem.Click += (s, e) => EditCategory(cat);
+
+            var deleteItem = new ToolStripMenuItem("Eliminar")
+            {
+                ForeColor = Color.FromArgb(200, 50, 50)
+            };
+            deleteItem.Click += (s, e) => DeleteCategory(cat);
+
+            ctx.Items.Add(editItem);
+            ctx.Items.Add(deleteItem);
+            return ctx;
+        }
+
+        private void EditCategory(Category cat)
+        {
+            using var form = new AddCategoryForm(cat);
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                cat.Name = form.CategoryName;
+                cat.IconCode = form.IconCode;
+                _categoryService.UpdateCategory(cat);
+                LoadCategories();
+                RefreshCurrentView();
+            }
+        }
+
+        private void DeleteCategory(Category cat)
+        {
+            var contacts = _contactService.GetContacts(_currentUserId, cat.Id);
+            string msg = $"¿Eliminar la categoría '{cat.Name}'?";
+            if (contacts.Count > 0)
+                msg += $"\n\nEsta categoría tiene {contacts.Count} contacto(s) que también serán eliminados.";
+
+            var result = MessageBox.Show(msg, "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (result != DialogResult.Yes) return;
+
+            foreach (var contact in contacts)
+                _contactService.DeleteContact(contact.Id);
+            _categoryService.DeleteCategory(cat.Id);
+
+            if (_currentCategoryId == cat.Id)
+                _currentCategoryId = null;
+
+            LoadCategories();
+            LoadContacts(_currentCategoryId);
         }
 
         private void BtnAddContact_Click(object sender, EventArgs e)

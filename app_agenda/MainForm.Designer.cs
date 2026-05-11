@@ -87,7 +87,7 @@ namespace app_agenda
             iconLogo.IconColor = Color.White;
             iconLogo.IconFont = IconFont.Auto;
             iconLogo.IconSize = 45;
-            iconLogo.Location = new Point(35, 37);
+            iconLogo.Location = new Point(18, 27);
             iconLogo.Name = "iconLogo";
             iconLogo.Size = new Size(45, 45);
             iconLogo.TabIndex = 0;
@@ -99,9 +99,9 @@ namespace app_agenda
             lblLogo.BackColor = Color.Transparent;
             lblLogo.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
             lblLogo.ForeColor = Color.White;
-            lblLogo.Location = new Point(75, 32);
+            lblLogo.Location = new Point(58, 31);
             lblLogo.Name = "lblLogo";
-            lblLogo.Size = new Size(185, 45);
+            lblLogo.Size = new Size(126, 30);
             lblLogo.TabIndex = 1;
             lblLogo.Text = "Mi Agenda";
             // 
@@ -116,18 +116,20 @@ namespace app_agenda
             pnlHeader.Name = "pnlHeader";
             pnlHeader.Size = new Size(777, 75);
             pnlHeader.TabIndex = 1;
-            //
+            // 
             // lblWelcome
-            //
+            // 
             lblWelcome.AutoSize = true;
             lblWelcome.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
             lblWelcome.ForeColor = Color.FromArgb(36, 158, 160);
             lblWelcome.Location = new Point(20, 22);
             lblWelcome.Name = "lblWelcome";
+            lblWelcome.Size = new Size(0, 25);
             lblWelcome.TabIndex = 0;
             // 
             // btnLogout
             // 
+            btnLogout.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnLogout.BackColor = Color.Transparent;
             btnLogout.Cursor = Cursors.Hand;
             btnLogout.FlatAppearance.BorderSize = 0;
@@ -137,7 +139,6 @@ namespace app_agenda
             btnLogout.IconChar = IconChar.SignOutAlt;
             btnLogout.IconColor = Color.FromArgb(36, 158, 160);
             btnLogout.IconFont = IconFont.Auto;
-            btnLogout.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnLogout.Location = new Point(625, 18);
             btnLogout.Name = "btnLogout";
             btnLogout.Size = new Size(130, 40);
@@ -162,9 +163,9 @@ namespace app_agenda
             pnlContent.Controls.Add(flpDisplay);
             pnlContent.Controls.Add(pnlSearch);
             pnlContent.Dock = DockStyle.Fill;
-            pnlContent.Location = new Point(250, 60);
+            pnlContent.Location = new Point(250, 75);
             pnlContent.Name = "pnlContent";
-            pnlContent.Size = new Size(777, 590);
+            pnlContent.Size = new Size(777, 575);
             pnlContent.TabIndex = 0;
             // 
             // flpDisplay
@@ -175,7 +176,7 @@ namespace app_agenda
             flpDisplay.FlowDirection = FlowDirection.TopDown;
             flpDisplay.Location = new Point(0, 63);
             flpDisplay.Name = "flpDisplay";
-            flpDisplay.Size = new Size(777, 527);
+            flpDisplay.Size = new Size(777, 512);
             flpDisplay.TabIndex = 0;
             flpDisplay.WrapContents = false;
             // 
@@ -201,7 +202,7 @@ namespace app_agenda
             btnAddContact.IconColor = Color.White;
             btnAddContact.IconFont = IconFont.Auto;
             btnAddContact.IconSize = 24;
-            btnAddContact.Location = new Point(307, 14);
+            btnAddContact.Location = new Point(307, 8);
             btnAddContact.Name = "btnAddContact";
             btnAddContact.Size = new Size(130, 40);
             btnAddContact.TabIndex = 0;
@@ -216,7 +217,7 @@ namespace app_agenda
             txtSearch.Font = new Font("Segoe UI", 10F);
             txtSearch.Location = new Point(101, 17);
             txtSearch.Name = "txtSearch";
-            txtSearch.Size = new Size(200, 34);
+            txtSearch.Size = new Size(200, 25);
             txtSearch.TabIndex = 1;
             txtSearch.TextChanged += TxtSearch_TextChanged;
             // 
@@ -246,6 +247,7 @@ namespace app_agenda
             pnlLogo.PerformLayout();
             ((ISupportInitialize)iconLogo).EndInit();
             pnlHeader.ResumeLayout(false);
+            pnlHeader.PerformLayout();
             pnlContent.ResumeLayout(false);
             pnlSearch.ResumeLayout(false);
             pnlSearch.PerformLayout();
@@ -259,16 +261,18 @@ namespace app_agenda
             var btn = new IconButton
             {
                 Text = text,
-                Size = new Size(250, 50),
+                Size = new Size(230, 50),
+                Margin = new Padding(0),
                 IconChar = icon,
                 IconColor = Color.White,
-                IconSize = 24,
+                IconSize = 22,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 TextAlign = ContentAlignment.MiddleLeft,
                 ImageAlign = ContentAlignment.MiddleLeft,
-                Padding = new Padding(25, 0, 0, 0),
+                Padding = new Padding(15, 0, 5, 0),
+                AutoEllipsis = true,
                 BackColor = Color.Transparent,
                 Cursor = Cursors.Hand,
                 Font = new Font("Segoe UI", 11, FontStyle.Regular)

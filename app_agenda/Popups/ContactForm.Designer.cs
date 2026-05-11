@@ -24,7 +24,7 @@ namespace app_agenda.UI.Popups
             lblName = new Label();
             _txtName = new TextBox();
             lblPhone = new Label();
-            _txtPhone = new TextBox();
+            _txtPhone = new MaskedTextBox();
             lblCategory = new Label();
             _cmbCategory = new ComboBox();
             _chkFavorite = new CheckBox();
@@ -68,15 +68,17 @@ namespace app_agenda.UI.Popups
             lblPhone.Size = new Size(320, 33);
             lblPhone.TabIndex = 3;
             lblPhone.Text = "Teléfono:";
-            // 
+            //
             // _txtPhone
-            // 
+            //
             _txtPhone.BorderStyle = BorderStyle.FixedSingle;
             _txtPhone.Font = new Font("Segoe UI", 11F);
             _txtPhone.Location = new Point(20, 172);
+            _txtPhone.Mask = "(000)-000-0000";
             _txtPhone.Name = "_txtPhone";
             _txtPhone.Size = new Size(320, 37);
             _txtPhone.TabIndex = 4;
+            _txtPhone.HidePromptOnLeave = true;
             // 
             // lblCategory
             // 
@@ -163,7 +165,7 @@ namespace app_agenda.UI.Popups
         private Label lblName;
         private TextBox _txtName;
         private Label lblPhone;
-        private TextBox _txtPhone;
+        private MaskedTextBox _txtPhone;
         private Label lblCategory;
         private ComboBox _cmbCategory;
         private CheckBox _chkFavorite;
