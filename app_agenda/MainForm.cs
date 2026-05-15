@@ -22,6 +22,7 @@ namespace app_agenda
         private IconButton? _activeButton;
         private int? _currentCategoryId;
         private string _currentView = "contacts";
+        private bool _suppressSearch = false;
 
         public MainForm(int userId, string userName)
         {
@@ -183,10 +184,12 @@ namespace app_agenda
 
             btnTodos = CreateSidebarButton("Todos", IconChar.Inbox, () => {
                 _currentCategoryId = null;
+                ClearSearch();
                 LoadContacts(null);
             });
 
             btnFavoritos = CreateSidebarButton("Favoritos", IconChar.Heart, () => {
+                ClearSearch();
                 LoadFavorites();
             });
 
@@ -208,6 +211,7 @@ namespace app_agenda
                 var icon = ParseIcon(cat.IconCode);
                 var btn = CreateSidebarButton(cat.Name, icon, () => {
                     _currentCategoryId = capturedCat.Id;
+                    ClearSearch();
                     LoadContacts(capturedCat.Id);
                 });
                 btn.ContextMenuStrip = BuildCategoryContextMenu(capturedCat);
@@ -422,8 +426,18 @@ namespace app_agenda
                 LoadContacts(_currentCategoryId);
         }
 
+        private void ClearSearch()
+        {
+            if (txtSearch == null) return;
+            _suppressSearch = true;
+            txtSearch.Clear();
+            _suppressSearch = false;
+        }
+
         private void TxtSearch_TextChanged(object? sender, EventArgs e)
         {
+            if (_suppressSearch) return;
+
             var term = txtSearch?.Text ?? "";
             flpDisplay!.Controls.Clear();
 
@@ -444,6 +458,15 @@ namespace app_agenda
             using var form = new AddCategoryForm();
             if (form.ShowDialog() == DialogResult.OK)
             {
+                if (_categoryService.CategoryExists(_currentUserId, form.CategoryName))
+                {
+                    MessageBox.Show(
+                        $"Ya existe una categoría con el nombre '{form.CategoryName}'.",
+                        "Nombre duplicado",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return;
+                }
                 _categoryService.AddCategory(_currentUserId, form.CategoryName, form.IconCode);
                 LoadCategories();
             }
@@ -476,6 +499,15 @@ namespace app_agenda
             using var form = new AddCategoryForm(cat);
             if (form.ShowDialog() == DialogResult.OK)
             {
+                if (_categoryService.CategoryExists(_currentUserId, form.CategoryName, cat.Id))
+                {
+                    MessageBox.Show(
+                        $"Ya existe una categoría con el nombre '{form.CategoryName}'.",
+                        "Nombre duplicado",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return;
+                }
                 cat.Name = form.CategoryName;
                 cat.IconCode = form.IconCode;
                 _categoryService.UpdateCategory(cat);

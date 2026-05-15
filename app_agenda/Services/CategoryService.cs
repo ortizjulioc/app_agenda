@@ -62,7 +62,14 @@ public class CategoryService : Aplicada1.Core.IService<Category, int>
     // ── Métodos de mios ───────────────
 
     public List<Category> GetCategoriesByUser(int userId)
-        => _db.Categories.Where(c => c.UserId == userId).OrderBy(c => c.Name).ToList();
+        => _db.Categories.Where(c => c.UserId == userId && !c.IsDeleted).OrderBy(c => c.Name).ToList();
+
+    public bool CategoryExists(int userId, string name, int? excludeId = null)
+        => _db.Categories.Any(c =>
+            c.UserId == userId &&
+            !c.IsDeleted &&
+            c.Name.ToLower() == name.ToLower() &&
+            (excludeId == null || c.Id != excludeId));
 
     public void EnsureDefaultCategories(int userId)
     {
