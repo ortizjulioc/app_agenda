@@ -1,3 +1,22 @@
+
+<img width="1026" height="680" alt="image" src="https://github.com/user-attachments/assets/65c38a60-c862-4bcf-ac51-8448a5e26877" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 📇 Mi Agenda - Desktop Application
 
 Una aplicación de escritorio moderna y elegante para la gestión de contactos y tareas, desarrollada en **C#** utilizando **Windows Forms**. El proyecto se centra en ofrecer una experiencia de usuario fluida con una interfaz limpia basada en el color Teal y una navegación intuitiva.
