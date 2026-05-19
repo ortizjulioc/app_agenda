@@ -22,6 +22,11 @@ namespace app_agenda
         private IconButton? _activeButton;
         private int? _currentCategoryId;
         private string _currentView = "contacts";
+        private bool _suppressSearch = false;
+        private Label? _lblSectionTitle;
+
+        private static readonly HashSet<string> _defaultCategoryNames =
+            new(StringComparer.OrdinalIgnoreCase) { "General", "Personal", "Trabajo", "Familia" };
 
         public MainForm(int userId, string userName)
         {
@@ -32,6 +37,17 @@ namespace app_agenda
             _todoService = new TodoService();
 
             InitializeComponent();
+
+            // Título de sección en el header
+            _lblSectionTitle = new Label
+            {
+                AutoSize = true,
+                Font = new Font("Segoe UI", 14, FontStyle.Bold),
+                ForeColor = Color.FromArgb(36, 158, 160),
+                Location = new Point(300, 24),
+                Text = "Todos"
+            };
+            pnlHeader.Controls.Add(_lblSectionTitle);
 
             SetupThinScrollbar();
             LoadCategories();
@@ -183,10 +199,14 @@ namespace app_agenda
 
             btnTodos = CreateSidebarButton("Todos", IconChar.Inbox, () => {
                 _currentCategoryId = null;
+                ClearSearch();
+                UpdateSectionTitle("Todos");
                 LoadContacts(null);
             });
 
             btnFavoritos = CreateSidebarButton("Favoritos", IconChar.Heart, () => {
+                ClearSearch();
+                UpdateSectionTitle("Favoritos");
                 LoadFavorites();
             });
 
@@ -208,9 +228,15 @@ namespace app_agenda
                 var icon = ParseIcon(cat.IconCode);
                 var btn = CreateSidebarButton(cat.Name, icon, () => {
                     _currentCategoryId = capturedCat.Id;
+                    ClearSearch();
+                    UpdateSectionTitle(capturedCat.Name);
                     LoadContacts(capturedCat.Id);
                 });
-                btn.ContextMenuStrip = BuildCategoryContextMenu(capturedCat);
+
+                // Las categorías por defecto no se pueden editar ni eliminar
+                if (!_defaultCategoryNames.Contains(capturedCat.Name))
+                    btn.ContextMenuStrip = BuildCategoryContextMenu(capturedCat);
+
                 flpCategories.Controls.Add(btn);
             }
 
@@ -223,7 +249,10 @@ namespace app_agenda
             flpCategories.Controls.Add(separator2);
 
             var btnAddCategory = CreateSidebarButton("Nueva Categoría", IconChar.PlusCircle, () => BtnAddCategory_Click(null!, null!));
-            btnTodo = CreateSidebarButton("To Do List", IconChar.ListCheck, () => LoadTodos());
+            btnTodo = CreateSidebarButton("To Do List", IconChar.ListCheck, () => {
+                UpdateSectionTitle("To Do List");
+                LoadTodos();
+            });
 
             flpCategories.Controls.Add(btnAddCategory);
             flpCategories.Controls.Add(btnTodo);
@@ -422,8 +451,24 @@ namespace app_agenda
                 LoadContacts(_currentCategoryId);
         }
 
+        private void ClearSearch()
+        {
+            if (txtSearch == null) return;
+            _suppressSearch = true;
+            txtSearch.Clear();
+            _suppressSearch = false;
+        }
+
+        private void UpdateSectionTitle(string title)
+        {
+            if (_lblSectionTitle != null)
+                _lblSectionTitle.Text = title;
+        }
+
         private void TxtSearch_TextChanged(object? sender, EventArgs e)
         {
+            if (_suppressSearch) return;
+
             var term = txtSearch?.Text ?? "";
             flpDisplay!.Controls.Clear();
 
@@ -444,6 +489,15 @@ namespace app_agenda
             using var form = new AddCategoryForm();
             if (form.ShowDialog() == DialogResult.OK)
             {
+                if (_categoryService.CategoryExists(_currentUserId, form.CategoryName))
+                {
+                    MessageBox.Show(
+                        $"Ya existe una categoría con el nombre '{form.CategoryName}'.",
+                        "Nombre duplicado",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return;
+                }
                 _categoryService.AddCategory(_currentUserId, form.CategoryName, form.IconCode);
                 LoadCategories();
             }
@@ -473,9 +527,24 @@ namespace app_agenda
 
         private void EditCategory(Category cat)
         {
+            if (_defaultCategoryNames.Contains(cat.Name))
+            {
+                MessageBox.Show("Las categorías por defecto no se pueden editar.", "Acción no permitida", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
             using var form = new AddCategoryForm(cat);
             if (form.ShowDialog() == DialogResult.OK)
             {
+                if (_categoryService.CategoryExists(_currentUserId, form.CategoryName, cat.Id))
+                {
+                    MessageBox.Show(
+                        $"Ya existe una categoría con el nombre '{form.CategoryName}'.",
+                        "Nombre duplicado",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return;
+                }
                 cat.Name = form.CategoryName;
                 cat.IconCode = form.IconCode;
                 _categoryService.UpdateCategory(cat);
@@ -486,6 +555,12 @@ namespace app_agenda
 
         private void DeleteCategory(Category cat)
         {
+            if (_defaultCategoryNames.Contains(cat.Name))
+            {
+                MessageBox.Show("Las categorías por defecto no se pueden eliminar.", "Acción no permitida", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
             var contacts = _contactService.GetContacts(_currentUserId, cat.Id);
             string msg = $"¿Eliminar la categoría '{cat.Name}'?";
             if (contacts.Count > 0)
@@ -526,7 +601,15 @@ namespace app_agenda
 
         private void BtnLogout_Click(object sender, EventArgs e)
         {
-            Application.Exit();
+            var result = MessageBox.Show(
+                "¿Estás seguro de que quieres salir?",
+                "Cerrar aplicación",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button2);
+
+            if (result == DialogResult.Yes)
+                Application.Exit();
         }
 
         private void MainForm_Load(object sender, EventArgs e)

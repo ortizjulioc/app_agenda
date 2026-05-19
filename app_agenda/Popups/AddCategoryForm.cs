@@ -144,7 +144,8 @@ namespace app_agenda.UI.Popups
 
         private void AddCategoryForm_Load(object sender, EventArgs e)
         {
-
+            // Asegura que el ícono por defecto quede visualmente seleccionado al abrir
+            HighlightIcon(_selectedIconCode);
         }
     }
 }

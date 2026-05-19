@@ -43,6 +43,18 @@ namespace app_agenda.UI.Popups
                 _chkFavorite.Checked = contact.IsFavorite;
                 SelectCategory(contact.CategoryId);
             }
+            else
+            {
+                // Al crear, seleccionar "General" por defecto; si no existe, el primero disponible
+                var general = _cmbCategory.Items
+                    .OfType<ComboBoxItem>()
+                    .FirstOrDefault(i => i.Name.Equals("General", StringComparison.OrdinalIgnoreCase));
+
+                if (general != null)
+                    _cmbCategory.SelectedItem = general;
+                else if (_cmbCategory.Items.Count > 0)
+                    _cmbCategory.SelectedIndex = 0;
+            }
         }
 
         private void SelectCategory(int categoryId)
